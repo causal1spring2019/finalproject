@@ -1,0 +1,29 @@
+---
+title: "Causal Group Project-Preliminary Project Description"
+author: "Group Members: Shelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
+date: "3/15/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Target Population/Inclusion Criteria of Study
+
+#Causal Question
+
+#Target Causal Parameter
+
+#Data Description
+
+```{r}
+#sample size calculation
+
+#marginal distribution of exposure
+
+#marginal distribution of outcome
+```
+
+
+#Anticipated Challenges
