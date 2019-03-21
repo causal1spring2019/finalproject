@@ -9,16 +9,14 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Target Population/Inclusion Criteria of Study (See nlsy97)
-hi veronica!
-hello!
-hello my name is lizzy
+#Target Population/Inclusion Criteria of Study (See nlsy97): Steph
 
-#Causal Question
 
-#Target Causal Parameter
+#Causal Question:  
 
-#Data Description
+#Target Causal Parameter: Lizzy
+
+#Data Description: Veronica
 
 ```{r}
 #sample size calculation
@@ -29,4 +27,4 @@ hello my name is lizzy
 ```
 
 
-#Anticipated Challenges
+#Anticipated Challenges: Shelley
