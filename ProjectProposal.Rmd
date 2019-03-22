@@ -9,16 +9,16 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Target Population/Inclusion Criteria of Study (See nlsy97): Steph
+# Target Population/Inclusion Criteria of Study (See nlsy97): Steph
 
 
-#Causal Question:  
+# Causal Question:  
 =======
 Does the experience of having been bullied prior to age 12 effect incidence of drug use in adolescence or adulthood?
 
-#Target Causal Parameter: Lizzy
+# Target Causal Parameter: Lizzy
 
-#Data Description: Veronica
+# Data Description: Veronica
 
 ```{r}
 #sample size calculation
@@ -29,4 +29,5 @@ Does the experience of having been bullied prior to age 12 effect incidence of d
 ```
 
 
-#Anticipated Challenges: Shelley
+# Anticipated Challenges: Shelley
+=======
