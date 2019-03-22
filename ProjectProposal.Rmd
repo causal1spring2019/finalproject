@@ -31,3 +31,4 @@ Does the experience of having been bullied prior to age 12 effect incidence of d
 
 # Anticipated Challenges: Shelley
 =======
+There are many potential Ws in our dataset, and in order to make this manageable we will need to determine the appropriate variables to include in our analysis. We have already verified that there is sufficient data in each of the strata (as found in the data description) so while we were originally concerned about this, we think it will be fine.
