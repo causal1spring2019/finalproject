@@ -1,7 +1,7 @@
 ---
 title: "Causal Group Project-Preliminary Project Description"
 author: "Group Members: Shelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
-date: "3/15/2019"
+date: "3/23/2019"
 output: pdf_document
 ---
 
@@ -31,4 +31,4 @@ Does the experience of having been bullied prior to age 12 effect incidence of d
 
 # Anticipated Challenges: Shelley
 =======
-There are many potential Ws in our dataset, and in order to make this manageable we will need to determine the appropriate variables to include in our analysis. We have already verified that there is sufficient data in each of the strata (as found in the data description) so while we were originally concerned about this, we think it will be fine.
+There are many potential Ws in our dataset, and in order to make this manageable we will need to determine the appropriate variables to include in our analysis. We have already verified that there is sufficient data in each of the strata (as found in the data description) so while we were originally concerned about this, we think it will be fine. Our major challenge will likely be that this is longitudinal data, which we have only dealt with in small ways in class; we will need to pay careful attention to time-ordered variables and make sure they are appropriately handled in our causal model. 
