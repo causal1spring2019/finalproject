@@ -16,7 +16,7 @@ These data are from the National Longitudinal Survey of Youth 1997. This was rec
 
 What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
-# Target Causal Parameter: Lizzy
+# Target Causal Parameter:
 
 The target causal parameter is the difference in the counterfactual probability of drug use, if all kids were bullied prior to age 12, and the counterfactual probability of drug use, if all kids were not bullied prior to age 12:
 
@@ -39,6 +39,6 @@ where $Y_a$ denotes the counterfactual outcome under an intervention to set bull
 ```
 
 
-# Anticipated Challenges: Shelley
-=======
+# Anticipated Challenges:
+
 There are many potential Ws in our dataset, and in order to make this manageable we will need to determine the appropriate variables to include in our analysis. We have already verified that there is sufficient data in each of the strata (as found in the data description), so while we were originally concerned about this, we think it will be fine. Our major challenge will likely be that this is longitudinal data, which we have only dealt with briefly in class; we will need to pay careful attention to time-ordered variables and make sure they are appropriately handled in our causal model. 
