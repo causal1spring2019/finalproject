@@ -26,18 +26,31 @@ $$
 where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a.
 
 
-# Data Description: Veronica
+# Data Description: 
+Key variables:
 
-```{r}
-#key variables available
+A: Bullying before the age of 12 (asked in 1997)
 
-#sample size calculation
+Y: Incident drug use ("cocaine or other hard drugs") after 1997
 
+W: Race/ethnicity, year of birth, sex, BMI, sexual orientation (gleaned from post-1997 data), learning disability, not living with both biological parents, lived through hard times, citizenship (all Ws were measured at baseline unless otherwise noted)
+
+Sample size: 7,783
+
+Marginal distribution of exposure and outcome:
+
+```{r, include=FALSE}
+load("~/Documents/GitHub/finalproject/NLSYdata.Rdata")
 #marginal distribution of exposure
+exposure = table(final_data$bullied_bf_12_1997, useNA="ifany")
 
 #marginal distribution of outcome
+outcome = table(final_data$ever_new_user2, useNA = "ifany")
 ```
-
+ Variable | No | Yes 
+----- | ----- | -----
+Bullied < 12 | `r exposure[1]` | `r exposure[2]`
+Incident drug use | `r outcome[1]` | `r outcome[2]`
 
 # Anticipated Challenges:
 
