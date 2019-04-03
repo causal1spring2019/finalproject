@@ -9,7 +9,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# Target Population/Inclusion Criteria of Study 
+# Target Population/Inclusion Criteria of Study :
 These data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth age 12-16 (initial n=9000) in 1997. These youth have since been followed longitudinally. The target population is youth in the United States.
 
 # Causal Question:
