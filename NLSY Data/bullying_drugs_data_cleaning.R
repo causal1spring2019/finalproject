@@ -30,3 +30,5 @@ save(final_data, file = "~/Documents/GitHub/finalproject/NLSYdata.Rdata")
 
 # joint distribution of exposure and outcome
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, useNA="ifany")
+table(final_data$bullied_bf_12_1997)
+table(final_data$ever_new_user2)
