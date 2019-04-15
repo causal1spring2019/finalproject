@@ -1,0 +1,74 @@
+---
+title: "Final Project Analysis"
+author: "Shelley, Steph, Lizzy, Veronica"
+date: "4/15/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(plyr)
+library(dplyr)
+knitr::opts_chunk$set(include = FALSE, cache = TRUE)
+```
+
+```{r}
+# First, load the data
+ShelleyStephLizzyVeronicaDataLoad <- function(filename) 
+{
+  if(Sys.info()['sysname']=="Darwin"){
+    macfilepath <- paste("./NLSY Data/", filename, sep = "")
+     load(as.character(macfilepath), envir = globalenv())}
+  else{
+    windowsfilepath <- paste("~/GitHub/finalproject/NLSY Data/", filename, sep = "")
+     load(as.character(windowsfilepath), envir = globalenv())
+  }
+}
+
+ShelleyStephLizzyVeronicaDataLoad("NLSYdata.Rdata")
+```
+
+
+##Note that the variables we've chosen are:
+
+*Exposure*: Victim of bullying prior to age 12 (bullied_bf_12_1997)
+*Outcome*: Drug use during adolescence/Young adulthood (ever_new_user)
+
+*Ws*:
+Race (KEY_RACE_ETHNICITY_1997)
+Sex (KEY_SEX_1997)
+Sexual Orientation (anySameSex)
+BMI (BMI)
+Learning Disability (learning_disability_1997)
+Bio Mom's Education (CV_HGC_BIO_MOM_1997)
+Citizenship (CV_CITIZENSHIP_1997)
+Not Living with both Biological Parents (YOUTH_BOTHBIO.01_1997)
+
+```{r}
+#some cleaning of variables to rename levels for ease of visualization
+final_data$bullied_bf_12_1997 <- as.factor(final_data$bullied_bf_12_1997)
+final_data$bullied_bf_12_1997 <- revalue(final_data$bullied_bf_12_1997,    
+                                         c("0"="NotBullied", "1"="Bullied"))
+
+final_data$ever_new_user2 <- as.factor(final_data$ever_new_user2)
+final_data$ever_new_user2 <- revalue( final_data$ever_new_user2,
+                                      c("0" = "NoDrugUse", "1" = "DrugUse"))
+```
+
+
+#Practical Positivity Assumption Assessment
+
+```{r}
+#just race and gender
+table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
+
+#just race and gender
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
+
+#race, gender, sexual orientation
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, 
+      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, 
+      final_data$anySameSex , useNA="ifany")
+
+
+```
+
