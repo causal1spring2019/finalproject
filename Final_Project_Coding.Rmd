@@ -58,7 +58,7 @@ final_data$ever_new_user2 <- revalue( final_data$ever_new_user2,
 #Practical Positivity Assumption Assessment
 
 ```{r}
-#just race and gender
+#just race
 table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
 
 #just race and gender
