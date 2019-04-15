@@ -52,6 +52,15 @@ final_data$bullied_bf_12_1997 <- revalue(final_data$bullied_bf_12_1997,
 final_data$ever_new_user2 <- as.factor(final_data$ever_new_user2)
 final_data$ever_new_user2 <- revalue( final_data$ever_new_user2,
                                       c("0" = "NoDrugUse", "1" = "DrugUse"))
+
+final_data$KEY_RACE_ETHNICITY_1997 <- as.factor(final_data$KEY_RACE_ETHNICITY_1997)
+final_data$KEY_RACE_ETHNICITY_1997 <- revalue(final_data$KEY_RACE_ETHNICITY_1997,    
+                                         c("1"="Black", "2"="Hispanic", "3"="MixedRace", "4"="White"))
+
+final_data$KEY_SEX_1997 <- as.factor(final_data$KEY_SEX_1997)
+final_data$KEY_SEX_1997 <- revalue(final_data$KEY_SEX_1997,    
+                                         c("1"="Male", "2"="Female"))
+
 ```
 
 
@@ -61,13 +70,14 @@ final_data$ever_new_user2 <- revalue( final_data$ever_new_user2,
 #just race
 table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
 
-#just race and gender
+#just race and gender with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
 
-#race, gender, sexual orientation
+#race, gender, sexual orientation with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, 
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, 
       final_data$anySameSex , useNA="ifany")
+
 
 
 ```
