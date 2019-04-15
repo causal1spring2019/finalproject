@@ -61,6 +61,20 @@ final_data$KEY_SEX_1997 <- as.factor(final_data$KEY_SEX_1997)
 final_data$KEY_SEX_1997 <- revalue(final_data$KEY_SEX_1997,    
                                          c("1"="Male", "2"="Female"))
 
+final_data$anySameSex <- as.factor(final_data$anySameSex)
+final_data$anySameSex <- revalue(final_data$anySameSex, c("FALSE" = "NoSameSex", "TRUE" = "SomeSameSex"))
+
+final_data$learning_disability_1997 <- as.factor(final_data$learning_disability_1997)
+final_data$learning_disability_1997  <- revalue(final_data$learning_disability_1997 , c("0" = "NoLearningDisability", "1" = "LearningDisability"))
+
+final_data$CV_CITIZENSHIP_1997 <- as.factor(final_data$CV_CITIZENSHIP_1997)
+final_data$CV_CITIZENSHIP_1997 <- revalue(final_data$CV_CITIZENSHIP_1997, c("1"="BornInUS", "2"="NotBornInUS", "3"="BirthplaceUnknown"))
+
+final_data$YOUTH_BOTHBIO.01_1997 <- as.factor(final_data$YOUTH_BOTHBIO.01_1997)
+final_data$YOUTH_BOTHBIO.01_1997 <- revalue(final_data$YOUTH_BOTHBIO.01_1997, c("1"="LivesWBothBioParents", "0"="DoesntLiveWBioParents"))
+
+final_data <- final_data %>% filter(KEY_RACE_ETHNICITY_1997 != "MixedRace")
+#steph-need to relevel to take out the category
 ```
 
 
@@ -73,10 +87,15 @@ table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
 #just race and gender with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
 
-#race, gender, sexual orientation with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, 
-      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, 
-      final_data$anySameSex , useNA="ifany")
+summary(as.factor(final_data$CV_HGC_BIO_MOM_1997))
+
+#All with exp/out-currently messy bc of mother education variable
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
+      final_data$anySameSex, final_data$learning_disability_1997,
+      final_data$CV_HGC_BIO_MOM_1997, final_data$CV_CITIZENSHIP_1997,
+      final_data$YOUTH_BOTHBIO.01_1997,
+      useNA="ifany")
 
 
 
