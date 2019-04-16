@@ -74,7 +74,22 @@ final_data$YOUTH_BOTHBIO.01_1997 <- as.factor(final_data$YOUTH_BOTHBIO.01_1997)
 final_data$YOUTH_BOTHBIO.01_1997 <- revalue(final_data$YOUTH_BOTHBIO.01_1997, c("1"="LivesWBothBioParents", "0"="DoesntLiveWBioParents"))
 
 final_data <- final_data %>% filter(KEY_RACE_ETHNICITY_1997 != "MixedRace")
-#steph-need to relevel to take out the category
+final_data$KEY_RACE_ETHNICITY_1997 <- droplevels(final_data$KEY_RACE_ETHNICITY_1997) #takes away the empty category
+
+final_data$MomEducation <- NA
+final_data$MomEducation[final_data$CV_HGC_BIO_MOM_1997 < 12] <- 0
+final_data$MomEducation[final_data$CV_HGC_BIO_MOM_1997 == 12] <- 1
+final_data$MomEducation[final_data$CV_HGC_BIO_MOM_1997 > 12] <- 2
+final_data$MomEducation <-as.factor(final_data$MomEducation)
+final_data$MomEducation <- revalue(final_data$MomEducation, c("0"="LessThanHigh", "1"="HighSchlGrad", "2"="SomeCollege"))
+
+#dichotomous version of maternal education variable
+final_data$MomEduDi <- NA
+final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 < 12] <- 1
+final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 == 12] <- 1
+final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 > 12] <- 2
+final_data$MomEduDi <-as.factor(final_data$MomEduDi)
+final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"="SomeCollege"))
 ```
 
 
@@ -87,13 +102,34 @@ table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
 #just race and gender with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
 
-summary(as.factor(final_data$CV_HGC_BIO_MOM_1997))
+#just sexual orientaion and learning disability with exp/out
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$anySameSex, final_data$learning_disability_1997,
+      useNA="ifany")
 
-#All with exp/out-currently messy bc of mother education variable
+summary(final_data$anySameSex)
+summary(final_data$learning_disability_1997)
+
+#just maternal education and born in US with exp/out
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$MomEducation, final_data$CV_CITIZENSHIP_1997,
+      useNA="ifany")
+
+summary(final_data$CV_CITIZENSHIP_1997)
+summary(final_data$YOUTH_BOTHBIO.01_1997)
+
+#All with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
       final_data$anySameSex, final_data$learning_disability_1997,
-      final_data$CV_HGC_BIO_MOM_1997, final_data$CV_CITIZENSHIP_1997,
+      final_data$MomEducation, final_data$CV_CITIZENSHIP_1997,
+      final_data$YOUTH_BOTHBIO.01_1997,
+      useNA="ifany")
+
+#Steph's suggested set of variables
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
+      final_data$MomEduDi, 
       final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
