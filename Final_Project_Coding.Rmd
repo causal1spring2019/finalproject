@@ -9,9 +9,7 @@ output: pdf_document
 library(plyr)
 library(dplyr)
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
-```
 
-```{r}
 # First, load the data
 ShelleyStephLizzyVeronicaDataLoad <- function(filename) 
 {
@@ -43,7 +41,9 @@ Bio Mom's Education (CV_HGC_BIO_MOM_1997)
 Citizenship (CV_CITIZENSHIP_1997)
 Not Living with both Biological Parents (YOUTH_BOTHBIO.01_1997)
 
-```{r}
+```{r data cleaning}
+#Let's do all Variable prep/Data cleaning in this chunk
+
 #some cleaning of variables to rename levels for ease of visualization
 final_data$bullied_bf_12_1997 <- as.factor(final_data$bullied_bf_12_1997)
 final_data$bullied_bf_12_1997 <- revalue(final_data$bullied_bf_12_1997,    
@@ -73,9 +73,13 @@ final_data$CV_CITIZENSHIP_1997 <- revalue(final_data$CV_CITIZENSHIP_1997, c("1"=
 final_data$YOUTH_BOTHBIO.01_1997 <- as.factor(final_data$YOUTH_BOTHBIO.01_1997)
 final_data$YOUTH_BOTHBIO.01_1997 <- revalue(final_data$YOUTH_BOTHBIO.01_1997, c("1"="LivesWBothBioParents", "0"="DoesntLiveWBioParents"))
 
+final_data$overweight <- as.factor(final_data$overweight)
+final_data$overweight <- revalue(final_data$overweight, c("0"="NotOverweight", "1"="Overweight"))
+
 final_data <- final_data %>% filter(KEY_RACE_ETHNICITY_1997 != "MixedRace")
 final_data$KEY_RACE_ETHNICITY_1997 <- droplevels(final_data$KEY_RACE_ETHNICITY_1997) #takes away the empty category
 
+#Categorizing the Maternal Education variable
 final_data$MomEducation <- NA
 final_data$MomEducation[final_data$CV_HGC_BIO_MOM_1997 < 12] <- 0
 final_data$MomEducation[final_data$CV_HGC_BIO_MOM_1997 == 12] <- 1
@@ -96,27 +100,19 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
 #Practical Positivity Assumption Assessment
 
 ```{r}
-#just race
-table(final_data$KEY_RACE_ETHNICITY_1997, useNA="ifany")
 
-#just race and gender with exp/out
+#just race and gender with exposure/outcome
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
 
-#just sexual orientaion and learning disability with exp/out
+#just sexual orientaion, learning disability and born in US with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$anySameSex, final_data$learning_disability_1997,
+      final_data$anySameSex, final_data$learning_disability_1997, final_data$CV_CITIZENSHIP_1997,
       useNA="ifany")
 
 summary(final_data$anySameSex)
 summary(final_data$learning_disability_1997)
-
-#just maternal education and born in US with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$MomEducation, final_data$CV_CITIZENSHIP_1997,
-      useNA="ifany")
-
 summary(final_data$CV_CITIZENSHIP_1997)
-summary(final_data$YOUTH_BOTHBIO.01_1997)
+
 
 #All with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
@@ -126,14 +122,19 @@ table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
-#Steph's suggested set of variables
+#smaller set
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
-      final_data$MomEduDi, 
+      final_data$MomEducation, 
       final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
-
+#Steph's suggested set of variables
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
+      final_data$MomEduDi, final_data$overweight,
+      final_data$YOUTH_BOTHBIO.01_1997,
+      useNA="ifany")
 
 ```
 
