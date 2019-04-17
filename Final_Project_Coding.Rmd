@@ -80,6 +80,9 @@ final_data$learning_disability_1997  <- revalue(final_data$learning_disability_1
 final_data$CV_CITIZENSHIP_1997 <- as.factor(final_data$CV_CITIZENSHIP_1997)
 final_data$CV_CITIZENSHIP_1997 <- revalue(final_data$CV_CITIZENSHIP_1997, c("1"="BornInUS", "2"="NotBornInUS", "3"="BirthplaceUnknown"))
 
+final_data$anySameSex <- as.factor(final_data$anySameSex)
+final_data$anySameSex <- revalue(final_data$anySameSex, c("1"="SameSex", "0"="NoSameSex"))
+
 final_data$YOUTH_BOTHBIO.01_1997 <- as.factor(final_data$YOUTH_BOTHBIO.01_1997)
 final_data$YOUTH_BOTHBIO.01_1997 <- revalue(final_data$YOUTH_BOTHBIO.01_1997, c("1"="LivesWBothBioParents", "0"="DoesntLiveWBioParents"))
 
@@ -103,11 +106,11 @@ final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 > 12] <- 2
 final_data$MomEduDi <-as.factor(final_data$MomEduDi)
 final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"="SomeCollege"))
 
-#Using CDC growth charts (via AGD package) to get BMI Z scores by age 
+#Using CDC growth charts (via childsds package) to get BMI Z scores by age 
 final_data$Birthdate <-paste("15", as.character(final_data$KEY_BDATE_M_1997),
                              as.character(final_data$KEY_BDATE_Y_1997),sep=" ")
 final_data$Birthdate <-dmy(final_data$Birthdate)
-final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/365.25) #This is approximate
+final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/365.25) #This is approximate, both because birthdates only had month/year and because I just calculated from the middle of the year 1997
 
  final_data <-  final_data %>%
                     mutate(bmiz = sds(BMI,
@@ -117,9 +120,10 @@ final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/36
                     item = "bmi",
                     type = "SDS"))
  
- #Note, there's one observation with a z score of -20, and some with -Inf? trying to find that
+ #Note, there's one observation with a z score of -20, and some with -Inf? trying to find those
  final_data %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
  HugeNegZScores <- final_data %>% filter(bmiz< -15)
+ #drop those kids!
  
  #if I exclude those 9 subjects, the boxplot looks like this
   final_data %>% filter(bmiz> -15) %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
@@ -136,7 +140,7 @@ final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/36
 ```{r}
 
 
-#just sexual orientaion with exp/out
+#just sexual orientation with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$anySameSex, 
       useNA="ifany")
