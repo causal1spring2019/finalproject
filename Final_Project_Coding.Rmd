@@ -10,7 +10,7 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
-library(AGD)
+library(childsds)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -63,6 +63,10 @@ final_data$KEY_RACE_ETHNICITY_1997 <- as.factor(final_data$KEY_RACE_ETHNICITY_19
 final_data$KEY_RACE_ETHNICITY_1997 <- revalue(final_data$KEY_RACE_ETHNICITY_1997,    
                                          c("1"="Black", "2"="Hispanic", "3"="MixedRace", "4"="White"))
 
+#Decision was made to remove the Mixed Race group due to small numbers
+final_data <- final_data %>% filter(KEY_RACE_ETHNICITY_1997 != "MixedRace")
+final_data$KEY_RACE_ETHNICITY_1997 <- droplevels(final_data$KEY_RACE_ETHNICITY_1997) #takes away the empty category
+
 final_data$KEY_SEX_1997 <- as.factor(final_data$KEY_SEX_1997)
 final_data$KEY_SEX_1997 <- revalue(final_data$KEY_SEX_1997,    
                                          c("1"="M", "2"="F"))
@@ -82,8 +86,6 @@ final_data$YOUTH_BOTHBIO.01_1997 <- revalue(final_data$YOUTH_BOTHBIO.01_1997, c(
 final_data$overweight <- as.factor(final_data$overweight)
 final_data$overweight <- revalue(final_data$overweight, c("0"="NotOverweight", "1"="Overweight"))
 
-final_data <- final_data %>% filter(KEY_RACE_ETHNICITY_1997 != "MixedRace")
-final_data$KEY_RACE_ETHNICITY_1997 <- droplevels(final_data$KEY_RACE_ETHNICITY_1997) #takes away the empty category
 
 #Categorizing the Maternal Education variable
 final_data$MomEducation <- NA
@@ -107,8 +109,25 @@ final_data$Birthdate <-paste("15", as.character(final_data$KEY_BDATE_M_1997),
 final_data$Birthdate <-dmy(final_data$Birthdate)
 final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/365.25) #This is approximate
 
- final_data$bmiz <-  AGD::y2z(y = final_data$BMI, x = final_data$AgeIn1997, sex = final_data$KEY_SEX_1997, ref = cdc.bmi)
-
+ final_data <-  final_data %>%
+                    mutate(bmiz = sds(BMI,
+                    age = AgeIn1997,
+                    sex = KEY_SEX_1997, male = "M", female =  "F",
+                    ref = cdc.ref,
+                    item = "bmi",
+                    type = "SDS"))
+ 
+ #Note, there's one observation with a z score of -20, and some with -Inf? trying to find that
+ final_data %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
+ HugeNegZScores <- final_data %>% filter(bmiz< -15)
+ 
+ #if I exclude those 9 subjects, the boxplot looks like this
+  final_data %>% filter(bmiz> -15) %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
+  
+  #Overweight variable based on pediatric criteria
+  final_data$PediOverweight<-"NotOverweight"
+  final_data$PediOverweight[final_data$bmiz > 1.036433] <-"Overweight" #because z of 1.036433 corresponds to 85th percentile, which is the definition of overweight in kids
+ final_data$PediOverweight <- as.factor(final_data$PediOverweight)
 ```
 
 
@@ -116,41 +135,42 @@ final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/36
 
 ```{r}
 
-#just race and gender with exposure/outcome
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997, useNA="ifany")
 
-#just sexual orientaion, learning disability and born in US with exp/out
+#just sexual orientaion with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$anySameSex, final_data$learning_disability_1997, final_data$CV_CITIZENSHIP_1997,
+      final_data$anySameSex, 
       useNA="ifany")
 
-summary(final_data$anySameSex)
-summary(final_data$learning_disability_1997)
-summary(final_data$CV_CITIZENSHIP_1997)
+
+#just learning/emotional problem with exp/out
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$learning_disability_1997, 
+      useNA="ifany")
+
+#just citizenship with exp/out
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$CV_CITIZENSHIP_1997,
+      useNA="ifany")
 
 
 #All with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
       final_data$anySameSex, final_data$learning_disability_1997,
-      final_data$MomEducation, final_data$CV_CITIZENSHIP_1997,
-      final_data$YOUTH_BOTHBIO.01_1997,
+      final_data$MomEduDi, final_data$CV_CITIZENSHIP_1997,
+      final_data$PediOverweight, final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
-#smaller set
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
-      final_data$MomEducation, 
-      final_data$YOUTH_BOTHBIO.01_1997,
-      useNA="ifany")
+
 
 #Steph's suggested set of variables
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
-      final_data$MomEduDi, final_data$overweight,
-      final_data$YOUTH_BOTHBIO.01_1997,
+      final_data$MomEduDi, 
+      final_data$PediOverweight, final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
+#same set but no PediOverweight variable 
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
       final_data$MomEduDi, 
@@ -158,16 +178,18 @@ table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       useNA="ifany")
 
 #Density Plots for BMI
-BMIbybullyingstatus <- group_by(final_data, bullied_bf_12_1997) %>% 
-                        ggplot(aes(BMI, fill = bullied_bf_12_1997)) +
+BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
+                        group_by( bullied_bf_12_1997) %>% 
+                        ggplot(aes(bmiz, fill = bullied_bf_12_1997)) +
                           geom_density(alpha=0.9) +
                           scale_fill_brewer(palette = 3)
 BMIbybullyingstatus
 ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
 
 #Boxplots for BMI
-BMIbybullyingstatusBox <- group_by(final_data, bullied_bf_12_1997) %>% 
-                        ggplot(aes(y=BMI, fill = bullied_bf_12_1997)) +
+BMIbybullyingstatusBox <- final_data %>% filter(bmiz> -15) %>%
+                        group_by( bullied_bf_12_1997) %>% 
+                        ggplot(aes(y=bmiz, fill = bullied_bf_12_1997)) +
                           geom_boxplot() 
 BMIbybullyingstatusBox
 ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
