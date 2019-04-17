@@ -22,7 +22,9 @@ ShelleyStephLizzyVeronicaDataLoad <- function(filename)
   }
 }
 
-ShelleyStephLizzyVeronicaDataLoad("NLSYdata.Rdata")
+ShelleyStephLizzyVeronicaDataLoad("imputed_data.Rdata")
+final_data <- imputed_data
+rm(imputed_data)
 ```
 
 
