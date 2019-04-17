@@ -11,6 +11,7 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(childsds)
+library(epiR)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -120,18 +121,16 @@ final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/36
                     item = "bmi",
                     type = "SDS"))
  
- #Note, there's one observation with a z score of -20, and some with -Inf? trying to find those
- final_data %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
- HugeNegZScores <- final_data %>% filter(bmiz< -15)
- #drop those kids!
- 
- #if I exclude those 9 subjects, the boxplot looks like this
-  final_data %>% filter(bmiz> -15) %>% ggplot(aes(y=bmiz)) +geom_boxplot() 
+ #Note, there's one observation with a z score of -20, and some with -Inf (9 observations total)
+ #final_data %>% ggplot(aes(y=bmiz)) +geom_boxplot() #can uncomment this line to see the boxplot if desired
+ #We decided to exclude those 9 subjects, so
+ final_data <-  final_data %>% filter(bmiz> -15) 
   
   #Overweight variable based on pediatric criteria
   final_data$PediOverweight<-"NotOverweight"
   final_data$PediOverweight[final_data$bmiz > 1.036433] <-"Overweight" #because z of 1.036433 corresponds to 85th percentile, which is the definition of overweight in kids
  final_data$PediOverweight <- as.factor(final_data$PediOverweight)
+ 
 ```
 
 
