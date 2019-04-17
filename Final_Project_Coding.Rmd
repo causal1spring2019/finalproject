@@ -140,22 +140,29 @@ final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/36
 ```{r}
 
 
-#just sexual orientation with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$anySameSex, 
-      useNA="ifany")
+#just sexual orientation with exp/out. (Note that variables are releveled to put it into the format that epiR wants)
+SexOrientTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
+                   final_data$anySameSex, 
+                   useNA="ifany")
 
+#calculating test of homogeneity between strata of sexual orientation
+epi.2by2(SexOrientTable)
 
 #just learning/emotional problem with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+LearningTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
       final_data$learning_disability_1997, 
       useNA="ifany")
 
+#calculating test of homogeneity between strata of Learning/Emotional problems
+epi.2by2(LearningTable)
+
 #just citizenship with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+CitizenTable <-table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
       final_data$CV_CITIZENSHIP_1997,
       useNA="ifany")
 
+#calculating test of homogeneity between strata of Citizenship (aka birthplace)
+epi.2by2(CitizenTable)
 
 #All with exp/out
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
