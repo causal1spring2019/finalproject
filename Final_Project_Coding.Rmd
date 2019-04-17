@@ -8,6 +8,10 @@ output: pdf_document
 ```{r setup, include=FALSE}
 library(plyr)
 library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(AGD)
+
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
 # First, load the data
@@ -61,7 +65,7 @@ final_data$KEY_RACE_ETHNICITY_1997 <- revalue(final_data$KEY_RACE_ETHNICITY_1997
 
 final_data$KEY_SEX_1997 <- as.factor(final_data$KEY_SEX_1997)
 final_data$KEY_SEX_1997 <- revalue(final_data$KEY_SEX_1997,    
-                                         c("1"="Male", "2"="Female"))
+                                         c("1"="M", "2"="F"))
 
 final_data$anySameSex <- as.factor(final_data$anySameSex)
 final_data$anySameSex <- revalue(final_data$anySameSex, c("FALSE" = "NoSameSex", "TRUE" = "SomeSameSex"))
@@ -96,6 +100,15 @@ final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 == 12] <- 1
 final_data$MomEduDi[final_data$CV_HGC_BIO_MOM_1997 > 12] <- 2
 final_data$MomEduDi <-as.factor(final_data$MomEduDi)
 final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"="SomeCollege"))
+
+#Using CDC growth charts (via AGD package) to get BMI Z scores by age 
+final_data$Birthdate <-paste("15", as.character(final_data$KEY_BDATE_M_1997),
+                             as.character(final_data$KEY_BDATE_Y_1997),sep=" ")
+final_data$Birthdate <-dmy(final_data$Birthdate)
+final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/365.25) #This is approximate
+
+ final_data$bmiz <-  AGD::y2z(y = final_data$BMI, x = final_data$AgeIn1997, sex = final_data$KEY_SEX_1997, ref = cdc.bmi)
+
 ```
 
 
@@ -137,6 +150,27 @@ table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$MomEduDi, final_data$overweight,
       final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
+
+table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
+      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
+      final_data$MomEduDi, 
+      final_data$YOUTH_BOTHBIO.01_1997,
+      useNA="ifany")
+
+#Density Plots for BMI
+BMIbybullyingstatus <- group_by(final_data, bullied_bf_12_1997) %>% 
+                        ggplot(aes(BMI, fill = bullied_bf_12_1997)) +
+                          geom_density(alpha=0.9) +
+                          scale_fill_brewer(palette = 3)
+BMIbybullyingstatus
+ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
+
+#Boxplots for BMI
+BMIbybullyingstatusBox <- group_by(final_data, bullied_bf_12_1997) %>% 
+                        ggplot(aes(y=BMI, fill = bullied_bf_12_1997)) +
+                          geom_boxplot() 
+BMIbybullyingstatusBox
+ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 
 ```
 
