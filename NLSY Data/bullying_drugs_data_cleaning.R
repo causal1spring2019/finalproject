@@ -33,11 +33,14 @@ table(final_data$bullied_bf_12_1997)
 table(final_data$ever_new_user2)
 
 #### Single imputation for missing values
-load("~/Documents/GitHub/finalproject/NLSY Data/NLSYdata.Rdata")
 library(mice)
+load("~/Documents/GitHub/finalproject/NLSY Data/NLSYdata.Rdata")
+load("~/Documents/GitHub/finalproject/NLSY Data/NLSY97_age.Rdata")
 
+# merge age variable into data set
+final_data = merge(final_data, new_data, by="PUBID_1997", all.x=TRUE)
 #remove vars not used in prediction
-for_imputation = final_data[,3:22]
+for_imputation = final_data[,3:23]
 
 #Impute data (1 imputed sets)
 MICEdata = mice(for_imputation, seed = 5, m=1)
