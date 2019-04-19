@@ -33,7 +33,7 @@ rm(imputed_data)
 ```
 
 
-##Note that the variables we've chosen are:
+##Note that the variables we considered initially are:
 
 *Exposure*: Victim of bullying prior to age 12 (bullied_bf_12_1997)
 *Outcome*: Drug use during adolescence/Young adulthood (ever_new_user)
@@ -108,14 +108,10 @@ final_data$MomEduDi <-as.factor(final_data$MomEduDi)
 final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"="SomeCollege"))
 
 #Using CDC growth charts (via childsds package) to get BMI Z scores by age 
-final_data$Birthdate <-paste("15", as.character(final_data$KEY_BDATE_M_1997),
-                             as.character(final_data$KEY_BDATE_Y_1997),sep=" ")
-final_data$Birthdate <-dmy(final_data$Birthdate)
-final_data$AgeIn1997 <- as.numeric((dmy("30 06 1997") - final_data$Birthdate)/365.25) #This is approximate, both because birthdates only had month/year and because I just calculated from the middle of the year 1997
 
  final_data <-  final_data %>%
                     mutate(bmiz = sds(BMI,
-                    age = AgeIn1997,
+                    age = KEY_AGE_1997,
                     sex = KEY_SEX_1997, male = "M", female =  "F",
                     ref = cdc.ref,
                     item = "bmi",
@@ -146,14 +142,16 @@ SexOrientTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_d
 
 #calculating test of homogeneity between strata of sexual orientation
 epi.2by2(SexOrientTable)
+#decision made to not use this variable based on small numbers, and no association with the measures of disease (looking at a test of homogeneity between strata)
 
 #just learning/emotional problem with exp/out
 LearningTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
       final_data$learning_disability_1997, 
       useNA="ifany")
 
-#calculating test of homogeneity between strata of Learning/Emotional problems
+#calculating test of homogeneity between strata of Learning/Emotional problems 
 epi.2by2(LearningTable)
+#decision made to not use this variable because its learning or emotional problem at the time of the study (age 12-18), so this may not be temporally before the exposure and could actually be caused by exposure
 
 #just citizenship with exp/out
 CitizenTable <-table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
@@ -162,25 +160,17 @@ CitizenTable <-table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data
 
 #calculating test of homogeneity between strata of Citizenship (aka birthplace)
 epi.2by2(CitizenTable)
-
-#All with exp/out
-table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
-      final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
-      final_data$anySameSex, final_data$learning_disability_1997,
-      final_data$MomEduDi, final_data$CV_CITIZENSHIP_1997,
-      final_data$PediOverweight, final_data$YOUTH_BOTHBIO.01_1997,
-      useNA="ifany")
+#decision made to not use this variable because so few children were born outside the US and we're not sure if birthplace is really getting at the SES/hardship construct that we were trying to get with citizenship data
 
 
-
-#Steph's suggested set of variables
+#Our set of variables
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
       final_data$MomEduDi, 
       final_data$PediOverweight, final_data$YOUTH_BOTHBIO.01_1997,
       useNA="ifany")
 
-#same set but no PediOverweight variable 
+#same set but no PediOverweight variable (considering it as a continuous instead)
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2,
       final_data$KEY_RACE_ETHNICITY_1997,  final_data$KEY_SEX_1997,
       final_data$MomEduDi, 
