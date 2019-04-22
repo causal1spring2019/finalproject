@@ -227,7 +227,7 @@ predict.1 = SL.treated$SL.predict
 predict.0 = SL.control$SL.predict
 
 #g-comp for ATE
-mean(predict.1-predict.0)
+gComp = mean(predict.1-predict.0)
 
 ## Stabilized IPTW with SuperLearner
 # make A a vector
@@ -239,5 +239,13 @@ gAW.sl = SuperLearner(Y=A, X=X, SL.library=SL.library, family='binomial', cvCont
 pred.g1W = SL.treated$SL.predict
 pred.g0W = 1- SL.treated$SL.predict
 gAW = ifelse(A==1, pred.g1W, pred.g0W)
+# weights = 1/prob treatment
+wt = 1/gAW
+# 7. Stabilized IPTW estimator 
+AY = as.data.frame(cbind(A,Y))
+IPTW = mean( wt*as.numeric(AY$A==1)*AY$Y)/mean( wt*as.numeric(AY$A==1)) -
+mean( wt*as.numeric(AY$A==0)*AY$Y)/mean( wt*as.numeric(AY$A==0))
+
 
 ```
+
