@@ -129,6 +129,8 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
   final_data$PediOverweight[final_data$bmiz > 1.036433] <-"Overweight" #because z of 1.036433 corresponds to 85th percentile, which is the definition of overweight in kids
  final_data$PediOverweight <- as.factor(final_data$PediOverweight)
  
+ save(final_data, file = "final_data_BMIz.RData")
+ 
 ```
 
 
