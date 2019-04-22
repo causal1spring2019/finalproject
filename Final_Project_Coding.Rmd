@@ -203,49 +203,62 @@ ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 7. Estimate
 ``` {r}
 load("final_data_BMIz.RData")
-# #G-comp with SuperLearner
+set.seed(4864)
+
+##G-comp with SuperLearner
 # Create SL library
 SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest")
 # create dataset of Ws
 X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
+X$bullied=as.numeric(final_data$bullied_bf_12_1997)
+X$bullied=ifelse(X$bullied==1,0,1)
 # set treatment at 0 and 1
 X0 = X
 X0$bullied = 0
 
 X1=X
 X1$bullied = 1
+
 # create a vector of Y
 Y = as.numeric(final_data$ever_new_user2)
 Y = ifelse(Y==1, 0, 1)
 
-#run SL on treatment and control
-SL.treated = SuperLearner(Y=Y, X=X1, SL.library=SL.library, family='binomial', cvControl=list(V=5))
-SL.control = SuperLearner(Y=Y, X=X0, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+#run SL 
+SL.pred = SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
 
 # get predicted outcomes under both scenarios
-predict.1 = SL.treated$SL.predict
-predict.0 = SL.control$SL.predict
+predict.1 = predict(SL.pred, newdata=X1)$pred
+predict.0 = predict(SL.pred, newdata=X0)$pred
 
 #g-comp for ATE
 gComp = mean(predict.1-predict.0)
+
 
 ## Stabilized IPTW with SuperLearner
 # make A a vector
 A=as.numeric(final_data$bullied_bf_12_1997)
 A=ifelse(A==1,0,1)
+# just Ws
+W = subset(X, select=c(1:5))
+
 # estimate treatment mechanism
-gAW.sl = SuperLearner(Y=A, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+gAW.sl = SuperLearner(Y=A, X=W, SL.library=SL.library, family='binomial', cvControl=list(V=5))
 # predicted prob of observed treatment
-pred.g1W = SL.treated$SL.predict
-pred.g0W = 1- SL.treated$SL.predict
+pred.g1W = gAW.sl$SL.predict 
+pred.g0W = 1- pred.g1W
 gAW = ifelse(A==1, pred.g1W, pred.g0W)
 # weights = 1/prob treatment
 wt = 1/gAW
-# 7. Stabilized IPTW estimator 
+# Stabilized IPTW estimator 
 AY = as.data.frame(cbind(A,Y))
 IPTW = mean( wt*as.numeric(AY$A==1)*AY$Y)/mean( wt*as.numeric(AY$A==1)) -
 mean( wt*as.numeric(AY$A==0)*AY$Y)/mean( wt*as.numeric(AY$A==0))
 
 
+## TMLE 
+WAY = cbind(X, Y)
+ltmle.SL<- ltmle(data=WAY, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library)
+tmle.summary = summary(ltmle.SL)
+TMLE = tmle.summary$effect.measures$ATE
 ```
 
