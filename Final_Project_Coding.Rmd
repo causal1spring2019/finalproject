@@ -203,13 +203,24 @@ ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 # #G-comp with SuperLearner
 # Create SL library
 SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest")
-# create dataset of A & Ws
-X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","BMI", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied_bf_12_1997"))
+# create dataset of Ws
+X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","BMI", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
+# set treatment at 0 and 1
+X0 = X
+X0$bullied = 0
+
+X1=X
+X1$bullied = 1
 # create a vector of Y
 Y = as.numeric(final_data$ever_new_user2)
 Y = ifelse(Y==1, 0, 1)
 
-#run SL
-SL.out = SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=4))
+#run SL on treatment and control
+SL.treated = SuperLearner(Y=Y, X=X1, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+SL.control = SuperLearner(Y=Y, X=X0, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+SL.out$SL.predict
+
 
 ```
