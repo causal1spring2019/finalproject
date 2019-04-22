@@ -12,6 +12,8 @@ library(ggplot2)
 library(lubridate)
 library(childsds)
 library(epiR)
+library(SuperLearner)
+library(ltmle)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -196,3 +198,18 @@ ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 
 ```
 
+7. Estimate
+``` {r}
+# #G-comp with SuperLearner
+# Create SL library
+SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest")
+# create dataset of A & Ws
+X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","BMI", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied_bf_12_1997"))
+# create a vector of Y
+Y = as.numeric(final_data$ever_new_user2)
+Y = ifelse(Y==1, 0, 1)
+
+#run SL
+SL.out = SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=4))
+
+```
