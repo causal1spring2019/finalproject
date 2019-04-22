@@ -220,7 +220,13 @@ SL.treated = SuperLearner(Y=Y, X=X1, SL.library=SL.library, family='binomial', c
 SL.control = SuperLearner(Y=Y, X=X0, SL.library=SL.library, family='binomial', cvControl=list(V=5))
 
 # get predicted outcomes under both scenarios
-SL.out$SL.predict
+predict.1 = SL.treated$SL.predict
+predict.0 = SL.control$SL.predict
+
+#g-comp for ATE
+mean(predict.1-predict.0)
+
+## Stabilized IPTW with SuperLearner
 
 
 ```
