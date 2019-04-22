@@ -207,7 +207,7 @@ set.seed(4864)
 
 ##G-comp with SuperLearner
 # Create SL library
-SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest")
+SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest", "SL.mean")
 # create dataset of Ws
 X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
 X$bullied=as.numeric(final_data$bullied_bf_12_1997)
@@ -257,8 +257,18 @@ mean( wt*as.numeric(AY$A==0)*AY$Y)/mean( wt*as.numeric(AY$A==0))
 
 ## TMLE 
 WAY = cbind(X, Y)
-ltmle.SL<- ltmle(data=WAY, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library)
+ltmle.SL<- ltmle(data=WAY, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
 tmle.summary = summary(ltmle.SL)
 TMLE = tmle.summary$effect.measures$ATE
+# performance of algorithms
+ltmle.SL$fit
+# CV risk
+CVrisk = CV.SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+summary(CVrisk)
+
+# unadjusted ATE
+unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
+
+
 ```
 
