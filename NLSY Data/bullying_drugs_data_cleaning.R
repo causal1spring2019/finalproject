@@ -27,6 +27,26 @@ final_data = subset(final_data, !is.na(final_data$bullied_bf_12_1997) & !is.na(f
 # save dataset
 save(final_data, file = "~/Documents/GitHub/finalproject/NLSYdata.Rdata")
 
-
 # joint distribution of exposure and outcome
 table(final_data$bullied_bf_12_1997,final_data$ever_new_user2, useNA="ifany")
+table(final_data$bullied_bf_12_1997)
+table(final_data$ever_new_user2)
+
+#### Single imputation for missing values
+library(mice)
+load("~/Documents/GitHub/finalproject/NLSY Data/NLSYdata.Rdata")
+load("~/Documents/GitHub/finalproject/NLSY Data/NLSY97_age.Rdata")
+
+# merge age variable into data set
+final_data = merge(final_data, new_data, by="PUBID_1997", all.x=TRUE)
+#remove vars not used in prediction
+for_imputation = final_data[,3:23]
+
+#Impute data (1 imputed sets)
+MICEdata = mice(for_imputation, seed = 5, m=1)
+imputed_data = complete(MICEdata)
+
+# add ID vars
+imputed_data = cbind(final_data[,1:2],imputed_data)
+
+save(imputed_data, file= "~/Documents/GitHub/finalproject/NLSY Data/imputed_data.Rdata")
