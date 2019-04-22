@@ -202,11 +202,12 @@ ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 
 7. Estimate
 ``` {r}
+load("final_data_BMIz.RData")
 # #G-comp with SuperLearner
 # Create SL library
 SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest")
 # create dataset of Ws
-X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","BMI", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
+X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
 # set treatment at 0 and 1
 X0 = X
 X0$bullied = 0
@@ -229,6 +230,14 @@ predict.0 = SL.control$SL.predict
 mean(predict.1-predict.0)
 
 ## Stabilized IPTW with SuperLearner
-
+# make A a vector
+A=as.numeric(final_data$bullied_bf_12_1997)
+A=ifelse(A==1,0,1)
+# estimate treatment mechanism
+gAW.sl = SuperLearner(Y=A, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W = SL.treated$SL.predict
+pred.g0W = 1- SL.treated$SL.predict
+gAW = ifelse(A==1, pred.g1W, pred.g0W)
 
 ```
