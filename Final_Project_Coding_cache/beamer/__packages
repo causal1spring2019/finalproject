@@ -9,3 +9,8 @@ epiR
 nnls
 SuperLearner
 ltmle
+Matrix
+foreach
+glmnet
+randomForest
+knitr
