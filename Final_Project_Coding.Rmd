@@ -15,6 +15,7 @@ library(childsds)
 library(epiR)
 library(SuperLearner)
 library(ltmle)
+library(knitr)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -36,20 +37,6 @@ rm(imputed_data)
 ```
 
 
-##Note that the variables we considered initially are:
-
-*Exposure*: Victim of bullying prior to age 12 (bullied_bf_12_1997)
-*Outcome*: Drug use during adolescence/Young adulthood (ever_new_user)
-
-*Ws*:
-Race (KEY_RACE_ETHNICITY_1997)
-Sex (KEY_SEX_1997)
-Sexual Orientation (anySameSex)
-BMI (BMI)
-Learning Disability (learning_disability_1997)
-Bio Mom's Education (CV_HGC_BIO_MOM_1997)
-Citizenship (CV_CITIZENSHIP_1997)
-Not Living with both Biological Parents (YOUTH_BOTHBIO.01_1997)
 
 ```{r data cleaning}
 #Let's do all Variable prep/Data cleaning in this chunk
@@ -135,9 +122,9 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
 ```
 
 
-#Practical Positivity Assumption Assessment
 
-```{r}
+
+```{r positivity checking}
 
 
 #just sexual orientation with exp/out. (Note that variables are releveled to put it into the format that epiR wants)
@@ -188,7 +175,7 @@ BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
                         ggplot(aes(bmiz, fill = bullied_bf_12_1997)) +
                           geom_density(alpha=0.9) +
                           scale_fill_brewer(palette = 3)
-BMIbybullyingstatus
+#BMIbybullyingstatus
 ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
 
 #Boxplots for BMI
@@ -196,13 +183,14 @@ BMIbybullyingstatusBox <- final_data %>% filter(bmiz> -15) %>%
                         group_by( bullied_bf_12_1997) %>% 
                         ggplot(aes(y=bmiz, fill = bullied_bf_12_1997)) +
                           geom_boxplot() 
-BMIbybullyingstatusBox
+#BMIbybullyingstatusBox
 ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 
 ```
 
-7. Estimate
-``` {r}
+
+``` {r estimate, cache = TRUE}
+#7. Estimate
 load("final_data_BMIz.RData")
 set.seed(4864)
 
@@ -300,3 +288,61 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 ```
 
+
+##Structural Causal Model
+<!-- note that we can add comments like this that won't knit --> 
+
+<!-- All this below is just adapted from our proposal. --> 
+
+
+# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+
+## Target Causal Parameter:
+
+  - Difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12:
+
+$$
+\psi^F (P_{U,X}) = P_{U,X} (Y_1 = 1) - P_{{U,X}}(Y_0=1) = E_{U,X}(Y_1) - E_{U,X}(Y_0)
+$$
+where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a.
+
+##Our Observed Data and Link to SCM
+
+  - Data are from the National Longitudinal Survey of Youth 1997
+  - A nationally representative cohort of youth age 12-16 (initial n=9000) in 1997, who were subsequently followed longitudinally. 
+  - The target population is youth in the United States.
+
+## Data Description: 
+Key variables:
+
+A: Bullying before the age of 12 (asked in 1997)
+
+Y: Incident drug use ("cocaine or other hard drugs") after 1997
+
+W: Race/ethnicity, age, sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline)
+
+Sample size: 7,703
+
+We initially also considered: sexual orientation, learning/emotional disability, citizenship status
+
+## Marginal distribution of exposure and outcome:
+
+```{r, include=FALSE}
+#marginal distribution of exposure
+exposure = table(final_data$bullied_bf_12_1997, useNA="ifany")
+
+#marginal distribution of outcome
+outcome = table(final_data$ever_new_user2, useNA = "ifany")
+```
+ Variable | No | Yes 
+-------- | ------- | -------
+Bullied < 12 | `r exposure[1]` | `r exposure[2]`
+Incident drug use | `r outcome[1]` | `r outcome[2]`
+
+##Identifiability
+
+##Estimand and Statistical Model
+
+##Estimation Approach
+
+##Results
