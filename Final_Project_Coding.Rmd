@@ -205,23 +205,49 @@ ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 load("final_data_BMIz.RData")
 set.seed(4864)
 
-##G-comp with SuperLearner
-# Create SL library
-SL.library = c("SL.glmnet", "SL.glm","SL.glm.interaction", "SL.randomForest", "SL.mean")
+## prep data
+
 # create dataset of Ws
-X<- subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
+X = subset(final_data, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997"))
+
+# add A and make numeric
 X$bullied=as.numeric(final_data$bullied_bf_12_1997)
 X$bullied=ifelse(X$bullied==1,0,1)
+
+# create a vector of Y
+Y = as.numeric(final_data$ever_new_user2)
+Y = ifelse(Y==1, 0, 1)
+
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.randomForest", "SL.mean", "SL.loglinear")
+
+
+##G-comp with SuperLearner##
+
 # set treatment at 0 and 1
 X0 = X
 X0$bullied = 0
 
 X1=X
 X1$bullied = 1
-
-# create a vector of Y
-Y = as.numeric(final_data$ever_new_user2)
-Y = ifelse(Y==1, 0, 1)
 
 #run SL 
 SL.pred = SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
@@ -234,10 +260,10 @@ predict.0 = predict(SL.pred, newdata=X0)$pred
 gComp = mean(predict.1-predict.0)
 
 
-## Stabilized IPTW with SuperLearner
+## Stabilized IPTW with SuperLearner ##
+
 # make A a vector
-A=as.numeric(final_data$bullied_bf_12_1997)
-A=ifelse(A==1,0,1)
+A=X$bullied
 # just Ws
 W = subset(X, select=c(1:5))
 
@@ -255,7 +281,8 @@ IPTW = mean( wt*as.numeric(AY$A==1)*AY$Y)/mean( wt*as.numeric(AY$A==1)) -
 mean( wt*as.numeric(AY$A==0)*AY$Y)/mean( wt*as.numeric(AY$A==0))
 
 
-## TMLE 
+## TMLE ##
+
 WAY = cbind(X, Y)
 ltmle.SL<- ltmle(data=WAY, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
 tmle.summary = summary(ltmle.SL)
@@ -266,7 +293,7 @@ ltmle.SL$fit
 CVrisk = CV.SuperLearner(Y=Y, X=X, SL.library=SL.library, family='binomial', cvControl=list(V=5))
 summary(CVrisk)
 
-# unadjusted ATE
+## unadjusted ATE ##
 unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
