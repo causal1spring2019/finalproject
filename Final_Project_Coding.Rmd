@@ -226,7 +226,7 @@ predict.SL.loglinear <- function(object, newdata, ...) {
 }
 
 # Create SL library
-SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.randomForest", "SL.mean", "SL.loglinear")
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.polymars", "SL.step", "SL.mean", "SL.loglinear")
 
 
 ##G-comp with SuperLearner##
@@ -343,6 +343,18 @@ Incident drug use | `r outcome[1]` | `r outcome[2]`
 
 ##Estimand and Statistical Model
 
-##Estimation Approach
+##Estimation: Unadjusted ATE & SuperLearner
+
+- The unadjusted ATE = mean(Y|A=1 - Y|A=0) = `r unadjusted`
+
+- We use SuperLearner for prediction in all models. 
+  - Library: `r SL.library`
+  - 5-fold cross-validation
+
+
+##Estimation: IPTW
+
+##Estimation: TMLE
+
 
 ##Results
