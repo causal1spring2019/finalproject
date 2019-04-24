@@ -368,41 +368,35 @@ Stabilized IPTW | `r round(IPTW, 3)`
 TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI[1,2], 3)`)
 
 
-## Estimation: SuperLearner convex combination
-Bullied before 12
+## Estimation: SuperLearner convex combinations
 
-Algorithm | Risk | Coefficient 
----------- | ---------- | ----------
-glm | `r ltmle.SL$fit$g[[2]]$bullied[1,1]` | `r ltmle.SL$fit$g[[2]]$bullied[1,2]`
-glm.interaction | `r ltmle.SL$fit$g[[2]]$bullied[2,1]` | `r ltmle.SL$fit$g[[2]]$bullied[2,2]`
-glmnet | `r ltmle.SL$fit$g[[2]]$bullied[3,1]` | `r ltmle.SL$fit$g[[2]]$bullied[3,2]`
-bayesglm | `r ltmle.SL$fit$g[[2]]$bullied[4,1]` | `r ltmle.SL$fit$g[[2]]$bullied[4,2]`
-randomForest | `r ltmle.SL$fit$g[[2]]$bullied[5,1]` | `r ltmle.SL$fit$g[[2]]$bullied[5,2]`
-step | `r ltmle.SL$fit$g[[2]]$bullied[6,1]` | `r ltmle.SL$fit$g[[2]]$bullied[6,2]`
-mean | `r ltmle.SL$fit$g[[2]]$bullied[7,1]` | `r ltmle.SL$fit$g[[2]]$bullied[7,2]`
-loglinear | `r ltmle.SL$fit$g[[2]]$bullied[8,1]` | `r ltmle.SL$fit$g[[2]]$bullied[8,2]`
-
-Drug use
-
-Algorithm | Risk | Coefficient 
----------- | ---------- | ----------
-glm | `r ltmle.SL$fit$Q[[2]]$Y[1.1]` | `r ltmle.SL$fit$Q[[2]]$Y[1,2]`
-glm.interaction | `r ltmle.SL$fit$Q[[2]]$Y[2,1]` | `r ltmle.SL$fit$Q[[2]]$Y[2,2]`
-glmnet | `r ltmle.SL$fit$Q[[2]]$Y[3,1]` | `r ltmle.SL$fit$Q[[2]]$Y[3,2]`
-bayesglm | `r ltmle.SL$fit$Q[[2]]$Y[4,1]` | `r ltmle.SL$fit$Q[[2]]$Y[4,2]`
-randomForest | `r ltmle.SL$fit$Q[[2]]$Y[5,1]` | `r ltmle.SL$fit$Q[[2]]$Y[5,2]`
-step | `r ltmle.SL$fit$Q[[2]]$Y[6,1]` | `r ltmle.SL$fit$Q[[2]]$Y[6,2]`
-mean | `r ltmle.SL$fit$Q[[2]]$Y[7,1]` | `r ltmle.SL$fit$Q[[2]]$Y[7,2]`
-loglinear | `r ltmle.SL$fit$Q[[2]]$Y[8,1]` | `r ltmle.SL$fit$Q[[2]]$Y[8,2]`
+Algorithm | A Risk | A Coefficient | Y Risk | Y Coefficient
+--------- | ---------- | --------- | ---------- | ---------
+glm | `r ltmle.SL$fit$g[[2]]$bullied[1,1]` | `r ltmle.SL$fit$g[[2]]$bullied[1,2]` | `r ltmle.SL$fit$Q[[2]]$Y[1.1]` | `r ltmle.SL$fit$Q[[2]]$Y[1,2]`
+glm.interaction | `r ltmle.SL$fit$g[[2]]$bullied[2,1]` | `r ltmle.SL$fit$g[[2]]$bullied[2,2]` | `r ltmle.SL$fit$Q[[2]]$Y[2,1]` | `r ltmle.SL$fit$Q[[2]]$Y[2,2]`
+glmnet | `r ltmle.SL$fit$g[[2]]$bullied[3,1]` | `r ltmle.SL$fit$g[[2]]$bullied[3,2]` | `r ltmle.SL$fit$Q[[2]]$Y[3,1]` | `r ltmle.SL$fit$Q[[2]]$Y[3,2]`
+bayesglm | `r ltmle.SL$fit$g[[2]]$bullied[4,1]` | `r ltmle.SL$fit$g[[2]]$bullied[4,2]` | `r ltmle.SL$fit$Q[[2]]$Y[4,1]` | `r ltmle.SL$fit$Q[[2]]$Y[4,2]`
+randomForest | `r ltmle.SL$fit$g[[2]]$bullied[5,1]` | `r ltmle.SL$fit$g[[2]]$bullied[5,2]` | `r ltmle.SL$fit$Q[[2]]$Y[5,1]` | `r ltmle.SL$fit$Q[[2]]$Y[5,2]`
+step | `r ltmle.SL$fit$g[[2]]$bullied[6,1]` | `r ltmle.SL$fit$g[[2]]$bullied[6,2]` | `r ltmle.SL$fit$Q[[2]]$Y[6,1]` | `r ltmle.SL$fit$Q[[2]]$Y[6,2]`
+mean | `r ltmle.SL$fit$g[[2]]$bullied[7,1]` | `r ltmle.SL$fit$g[[2]]$bullied[7,2]` | `r ltmle.SL$fit$Q[[2]]$Y[7,1]` | `r ltmle.SL$fit$Q[[2]]$Y[7,2]`
+loglinear | `r ltmle.SL$fit$g[[2]]$bullied[8,1]` | `r ltmle.SL$fit$g[[2]]$bullied[8,2]` | `r ltmle.SL$fit$Q[[2]]$Y[8,1]` | `r ltmle.SL$fit$Q[[2]]$Y[8,2]`
 
 
 ## Estimation: SuperLearner performance
 CV.SuperLearner
 
-
-```{r, include=TRUE,echo=FALSE}
-summary(CVsummary)
-```
+Algorithm | Avg Risk | SE 
+--------- | ---------- | --------- 
+SuperLearner | `r CVtable$Ave[1]` | `r CVtable$se[1]`
+Discrete SL | `r CVtable$Ave[2]` | `r CVtable$se[2]`
+glm | `r CVtable$Ave[3]` | `r CVtable$se[3]`
+glm.interaction | `r CVtable$Ave[4]` | `r CVtable$se[4]`
+glmnet | `r CVtable$Ave[5]` | `r CVtable$se[5]`
+bayesglm | `r CVtable$Ave[6]` | `r CVtable$se[6]`
+randomForest | `r CVtable$Ave[7]` | `r CVtable$se[7]`
+step | `r CVtable$Ave[8]` | `r CVtable$se[8]`
+mean | `r CVtable$Ave[9]` | `r CVtable$se[9]`
+loglinear | `r CVtable$Ave[10]` | `r CVtable$se[10]`
 
 
 ## Results
