@@ -1,0 +1,7 @@
+
+*.rdx
+*.rdb
+*.RData
+Final_Project_Coding.pdf
+.DS_Store
+Final_Project_Coding_cache/beamer/__packages
