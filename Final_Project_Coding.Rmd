@@ -31,9 +31,14 @@ ShelleyStephLizzyVeronicaDataLoad <- function(filename)
     macfilepath <- paste("./NLSY Data/", filename, sep = "")
      load(as.character(macfilepath), envir = globalenv())}
   else{
+    if(Sys.info()['login']=="Peter"){
+    peterfilepath <- paste("~/Steph/GitHub/finalproject/NLSY Data/", filename, sep = "")
+     load(as.character(peterfilepath), envir = globalenv())}
+  else{
     windowsfilepath <- paste("~/GitHub/finalproject/NLSY Data/", filename, sep = "")
      load(as.character(windowsfilepath), envir = globalenv())
   }
+}
 }
 
 ShelleyStephLizzyVeronicaDataLoad("imputed_data.Rdata")
@@ -299,7 +304,7 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 ```{r bootstrap}
 
 #set the number of bootstrap iterations (B)
-B <- 10000
+B <- 2
 
 #set the total number in our sample
 n <- nrow(WAY)
@@ -308,11 +313,33 @@ n <- nrow(WAY)
 numCores <- detectCores()  #detect number of processor cores on the computer
 registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
 
-BootstrappedEsts <- foreach (b=1:B, .combine=rbind) %dopar% { 
+BootstrappedEsts <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
   #this is just a paralellized  version of a for loop
   
 bootIndices<- sample(1:n, replace=T)
 bootData<- WAY[bootIndices,]
+
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
 
   ##G-comp with SuperLearner##
 
