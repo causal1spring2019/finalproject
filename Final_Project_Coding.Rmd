@@ -1,6 +1,6 @@
 ---
 title: "Final Project: \n Childhood Bullying and Subsequent Drug Use"
-author: "Shelley, Steph, Lizzy, Veronica"
+author: "Shelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
 output:
   beamer_presentation: default
 date: "Spring 2019"
