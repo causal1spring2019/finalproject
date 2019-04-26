@@ -18,6 +18,10 @@ library(ltmle)
 library(knitr)
 library(tidyr)
 
+#these two packages allow for paralellization of the analysis using multiple computer processor cores
+library(foreach)
+library(doParallel)
+
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
 # First, load the data
@@ -300,9 +304,6 @@ B <- 10000
 #set the total number in our sample
 n <- nrow(WAY)
 
-#these two packages allow for paralellization of the analysis using multiple computer processor cores
-library(foreach)
-library(doParallel)
 
 numCores <- detectCores()  #detect number of processor cores on the computer
 registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
