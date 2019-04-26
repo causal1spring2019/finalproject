@@ -302,9 +302,12 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
 ```{r bootstrap}
+#breaking the boostrap into ten sections to make this easier on my little laptop
+set.seed(252)
 
+#section1#####
 #set the number of bootstrap iterations (B)
-B <- 2
+B <- 100
 
 #set the total number in our sample
 n <- nrow(WAY)
@@ -313,12 +316,14 @@ n <- nrow(WAY)
 numCores <- detectCores()  #detect number of processor cores on the computer
 registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
 
-BootstrappedEsts <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+BootstrappedEsts1 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
   #this is just a paralellized  version of a for loop
   
+#these create a new single sample which was resampled (with replacement)from our original sample
 bootIndices<- sample(1:n, replace=T)
 bootData<- WAY[bootIndices,]
 
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
 # write a parametric wrapper function to include in SL library
 SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
     fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
@@ -350,6 +355,7 @@ X0.boot$bullied = 0
 X1.boot=bootData
 X1.boot$bullied = 1
 
+#create a dataset with just the A and Ws
 WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
 
 #run SL 
@@ -394,9 +400,881 @@ mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boo
   c(gComp.boot, IPTW.boot)
 }
 
+######section2#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts2 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section3#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts3 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section4#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts4 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section5#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts5 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section6#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts6 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section7#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts7 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section8#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts8 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section9#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts9 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+######section10#####
+#set the number of bootstrap iterations (B)
+B <- 100
+
+#set the total number in our sample
+n <- nrow(WAY)
+
+
+numCores <- detectCores()  #detect number of processor cores on the computer
+registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+
+BootstrappedEsts10 <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% { 
+  #this is just a paralellized  version of a for loop
+  
+#these create a new single sample which was resampled (with replacement)from our original sample
+bootIndices<- sample(1:n, replace=T)
+bootData<- WAY[bootIndices,]
+
+#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# write a parametric wrapper function to include in SL library
+SL.loglinear = function (Y, X, newX, family, obsWeights, id) {
+    fit.loglin = glm(Y ~ ., data=X, family=poisson(link = "log"))
+    pred = predict(fit.loglin, newdata=newX, type='response')
+    fit = list(object=fit.loglin)
+    class(fit) = "SL.loglinear"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+predict.SL.loglinear <- function(object, newdata, ...) {
+  # newdata must be a dataframe, not a matrix.
+  if (is.matrix(newdata)) {
+    newdata = as.data.frame(newdata)
+  }
+  pred <- predict(object = object$object, newdata = newdata, type = "response")
+  pred
+}
+
+# Create SL library
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+
+
+  ##G-comp with SuperLearner##
+
+# set treatment at 0 and 1
+X0.boot = bootData
+X0.boot$bullied = 0
+
+X1.boot=bootData
+X1.boot$bullied = 1
+
+#create a dataset with just the A and Ws
+WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+
+#run SL 
+SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+
+# get predicted outcomes under both scenarios
+predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+
+#g-comp for ATE
+gComp.boot = mean(predict.1.boot-predict.0.boot)
+
+
+## Stabilized IPTW with SuperLearner ##
+
+# make A a vector
+A.boot=bootData$bullied
+# just Ws
+W.boot = subset(bootData, select=c(1:5))
+
+# estimate treatment mechanism
+gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# predicted prob of observed treatment
+pred.g1W.boot = gAW.sl.boot$SL.predict 
+pred.g0W.boot = 1- pred.g1W.boot
+gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# weights = 1/prob treatment
+wt.boot = 1/gAW.boot
+# Stabilized IPTW estimator 
+AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+
+
+## TMLE ##
+
+# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# tmle.summary.boot = summary(ltmle.SL.boot)
+# TMLE.boot = tmle.summary.boot$effect.measures$ATE
+
+
+  c(gComp.boot, IPTW.boot)
+}
+
+#combine the matrices from the ten sections into one matrix
+BootstrappedEsts <- rbind(BootstrappedEsts1, 
+                          BootstrappedEsts2,
+                          BootstrappedEsts3,
+                          BootstrappedEsts4,
+                          BootstrappedEsts5,
+                          BootstrappedEsts6,
+                          BootstrappedEsts7,
+                          BootstrappedEsts8,
+                          BootstrappedEsts9,
+                          BootstrappedEsts10)
+
+#turn the matrix that was put out by the bootstrapping function into a dataframe with the estimate from each iteration of the bootstrap
 BootstrappedEsts <-as.data.frame(BootstrappedEsts)
 BootstrappedEsts <- BootstrappedEsts %>% dplyr::rename(gCompBoot = V1, IPTWboot = V2)
 
+
+save(BootstrappedEsts, file = "BootstrappedEsts.RData")
+
+#make a long data version of the bootstrapped estimates to be able to plot them together on one histogram/density plot
 Bootstrapped_long <- gather(BootstrappedEsts, Estimator, value, gCompBoot:IPTWboot)
 
 BootstrappedHist <- Bootstrapped_long %>%
@@ -404,6 +1282,7 @@ BootstrappedHist <- Bootstrapped_long %>%
     geom_histogram(aes(value)) +
     facet_wrap(~Estimator)
 
+#little for loop to create confidence interval for each of the two estimators based on our bootstrapped data
 CIs <-matrix(rep(NA, 6), nrow = 2, ncol = 2)
 for (c in 1:2){
    CI.quant  <- quantile(BootstrappedEsts[ ,c], prob=c(0.025,0.975))
@@ -413,13 +1292,13 @@ for (c in 1:2){
 ```
 
 
-##Structural Causal Model
+## Structural Causal Model
 <!-- note that we can add comments like this that won't knit --> 
 
 <!-- All this below is just adapted from our proposal. --> 
 
 
-# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 ## Target Causal Parameter:
 
@@ -430,7 +1309,7 @@ $$
 $$
 where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a.
 
-##Our Observed Data and Link to SCM
+## Our Observed Data and Link to SCM
 
   - Data are from the National Longitudinal Survey of Youth 1997
   - A nationally representative cohort of youth age 12-16 (initial n=9000) in 1997, who were subsequently followed longitudinally. 
