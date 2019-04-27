@@ -497,7 +497,7 @@ knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
 
 
-While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons. Sexual orientation wasn't associated with our exposure/outcome, and strata were homogenous by sexual orientation (p=0.09). Upon inspecting the NLSY codebook, citizenship was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship. Finally, learning disability  actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, being bullied, and thus excluded it.
+<!--While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons. Sexual orientation wasn't associated with our exposure/outcome, and strata were homogenous by sexual orientation (p=0.09). Upon inspecting the NLSY codebook, citizenship was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship. Finally, learning disability  actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, being bullied, and thus excluded it.
 
 Therefore, below is our final DAG for this analysis:-->
 
