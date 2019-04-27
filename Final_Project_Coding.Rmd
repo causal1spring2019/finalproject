@@ -151,7 +151,8 @@ mothereduc.table <- table(final_data$ever_new_user2, final_data$MomEduDi)
 livebioparents.table <- table(final_data$ever_new_user2, final_data$YOUTH_BOTHBIO.01_1997)
 
 #BMI
-BMI.table <- table(final_data$ever_new_user2, final_data$bmiz)
+BMI.druguse <- subset(final_data, ever_new_user2=="DrugUse", select=bmiz)
+BMI.nodrugs <- subset(final_data, ever_new_user2=="NoDrugUse", select=bmiz)
 ```
 
 
@@ -587,7 +588,8 @@ $\textbf{Living with both biological parents}$ | | |
 Yes | `r livebioparents.table[2,2]` (`r round(livebioparents.table[2,2]/N*100, 1)`\%) | `r livebioparents.table[1,2]` (`r round(livebioparents.table[1,2]/N*100, 1)`\%)
 No | `r livebioparents.table[2,1]` (`r round(livebioparents.table[2,1]/N*100, 1)`\%) | `r livebioparents.table[1,1]` (`r round(livebioparents.table[1,1]/N*100, 1)`\%)
 |||
-$\textbf{BMI percentile}$ | `r round(mean(final_data$bmiz),2)` (*mean*) |  `r round(sd(final_data$bmiz),1)` (*sd*) |
+$\textbf{BMI percentile}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r round(mean(BMI.nodrugs$bmiz),3)` (*mean*) |
+\textcolor{white}{x} | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
 
 <!--
@@ -668,7 +670,7 @@ This is our statistical estimand.
 
 - Our for our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
 
-```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6, cache = FALSE}
+```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
 
 BMIbybullyingstatus
 
@@ -676,7 +678,7 @@ BMIbybullyingstatus
 
 ## Positivity: Assessing the Model Weights
 
-```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10, cache = FALSE}
+```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
 
 IPTWDensityPlot
 
@@ -688,7 +690,7 @@ IPTWDensityPlot
 
 - For G-comp and IPTW we performed a bootstrap
 
-```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10, cache = FALSE}
+```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10}
 BootstrappedHist
 ```
 
