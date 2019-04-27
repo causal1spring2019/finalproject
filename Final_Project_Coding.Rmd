@@ -543,7 +543,7 @@ A: Bullying before the age of 12 (asked in 1997)
 
 Y: Incident drug use ("cocaine or other hard drugs") after 1997
 
-Ws: Race/ethnicity, age (NOTE: I THINK THIS IS LEFTOVER AND SHOULD BE TAKEN OUT), sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
+Ws: Race/ethnicity, sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
 
 Sample size: 7,703
 
