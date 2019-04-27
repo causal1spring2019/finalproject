@@ -207,7 +207,9 @@ BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
                           geom_density(alpha=0.9) +
                           scale_fill_brewer(palette = 3) +
                           theme(text = element_text(size = 30)) +
-                          theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1.0, 'cm'))
+                          theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1, 'cm')) +
+                          labs(x = "BMI Z-score for Age and Sex")
+
 #BMIbybullyingstatus
 ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
 
@@ -430,11 +432,11 @@ Bootstrapped_long <- gather(BootstrappedEsts2000, Estimator, value, gCompBoot:IP
 
 BootstrappedHist <- Bootstrapped_long %>% group_by(Estimator) %>%
     ggplot(aes(value, fill = Estimator)) +
-    geom_histogram(color = "black", binwidth = 0.0005, size = 0.1) +
+    geom_histogram(color = "black", binwidth = 0.001, size = 0.1) +
     scale_fill_brewer(palette = 5, labels = c("G-comp", "IPTW")) +
     scale_x_continuous(limits = c(-0.04,0.12)) +
     xlab("Average Treatment Effect Value") +
-    theme(legend.title=element_blank()) +
+    theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1, 'cm')) +
     ggtitle("Histograms of G-comp and IPTW Estimands \n From 2000 Bootstrap Repetitions") +
   theme(text = element_text(size = 26))
 
@@ -462,7 +464,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
     scale_fill_brewer(palette = 3, labels = c("No drug use", "Drug Use")) +
     scale_x_continuous(limits = c(0,1)) +
     xlab("Probability of AW") +
-    theme(legend.title=element_blank()) +
+    theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1, 'cm')) +
     ggtitle("Density Plot of AW Probabilities By Outcome Group") +
   theme(text = element_text(size = 30))
 
@@ -663,12 +665,15 @@ This is our statistical estimand.
 ```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
 
 BMIbybullyingstatus
+
 ```
 
 ## Positivity: Assessing the Model Weights
 
 ```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
+
 IPTWDensityPlot
+
 ```
 
 ## Confidence Intervals
@@ -678,8 +683,8 @@ IPTWDensityPlot
 - For G-comp and IPTW we performed a bootstrap
 
 ```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
-BootstrappedHist
 
+BootstrappedHist
 ```
 
 ## Estimation: G-comp, IPTW, & TMLE
