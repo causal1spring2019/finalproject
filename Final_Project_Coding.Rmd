@@ -668,7 +668,7 @@ This is our statistical estimand.
 
 - Our for our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
 
-```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
+```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6, cache = FALSE}
 
 BMIbybullyingstatus
 
@@ -676,7 +676,7 @@ BMIbybullyingstatus
 
 ## Positivity: Assessing the Model Weights
 
-```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
+```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10, cache = FALSE}
 
 IPTWDensityPlot
 
@@ -688,7 +688,7 @@ IPTWDensityPlot
 
 - For G-comp and IPTW we performed a bootstrap
 
-```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10}
+```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10, cache = FALSE}
 BootstrappedHist
 ```
 
