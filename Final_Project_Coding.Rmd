@@ -206,7 +206,8 @@ BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
                         ggplot(aes(bmiz, fill = bullied_bf_12_1997)) +
                           geom_density(alpha=0.9) +
                           scale_fill_brewer(palette = 3) +
-                          theme(text = element_text(size = 30))
+                          theme(text = element_text(size = 30)) +
+                          theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1.0, 'cm'))
 #BMIbybullyingstatus
 ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
 
@@ -431,7 +432,7 @@ BootstrappedHist <- Bootstrapped_long %>% group_by(Estimator) %>%
     ggplot(aes(value, fill = Estimator)) +
     geom_histogram(color = "black", binwidth = 0.0005, size = 0.1) +
     scale_fill_brewer(palette = 5, labels = c("G-comp", "IPTW")) +
-    scale_x_continuous(limits = c(0,0.1)) +
+    scale_x_continuous(limits = c(-0.04,0.12)) +
     xlab("Average Treatment Effect Value") +
     theme(legend.title=element_blank()) +
     ggtitle("Histograms of G-comp and IPTW Estimands \n From 2000 Bootstrap Repetitions") +
@@ -660,6 +661,7 @@ This is our statistical estimand.
 - Our for our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
 
 ```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
+
 BMIbybullyingstatus
 ```
 
@@ -677,6 +679,7 @@ IPTWDensityPlot
 
 ```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
 BootstrappedHist
+
 ```
 
 ## Estimation: G-comp, IPTW, & TMLE
