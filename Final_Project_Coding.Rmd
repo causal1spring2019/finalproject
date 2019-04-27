@@ -131,7 +131,29 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
  
 ```
 
+```{r}
+N <- nrow(final_data)
 
+#bullying
+bully.table <- table(final_data$ever_new_user2, final_data$bullied_bf_12_1997) 
+
+
+#drug use
+race.table <- table(final_data$ever_new_user2, final_data$KEY_RACE_ETHNICITY_1997)
+
+#sex
+sex.table <- table(final_data$ever_new_user2, final_data$KEY_SEX_1997)
+
+#mother's education
+mothereduc.table <- table(final_data$ever_new_user2, final_data$MomEduDi)
+
+#bio parents
+livebioparents.table <- table(final_data$ever_new_user2, final_data$YOUTH_BOTHBIO.01_1997)
+
+#BMI
+BMI.table <- table(final_data$ever_new_user2, final_data$bmiz)
+
+```
 
 
 ```{r positivity checking}
@@ -1327,6 +1349,29 @@ W: Race/ethnicity, age, sex, BMI, not living with both biological parents, mothe
 Sample size: 7,703
 
 We initially also considered: sexual orientation, learning/emotional disability, citizenship status
+
+## Table 1
+
+Covariate | Drug use (\%) |  No drug use (\%)
+--------- | ---------- | --------- 
+$\textbf{Victim of bullying}$ |
+Yes | `r bully.table[2,2]` (`r round(race.table[2,2]/N*100, 1)`\%) | `r race.table[1,2]` (`r round(race.table[1,2]/N*100, 1)`\%)
+No | `r bully.table[2,1]` (`r round(race.table[2,1]/N*100, 1)`\%) | `r race.table[1,1]` (`r round(race.table[1,1]/N*100, 1)`\%)
+$\textbf{Mother's education}$ |
+High school or less | `r mothereduc.table[1,1]` (`r round(mothereduc.table[1,1]/N*100, 1)`\%) | `r mothereduc.table[2,1]` (`r round(mothereduc.table[2,1]/N*100, 1)`\%)
+Some college or more | `r mothereduc.table[2,2]` (`r round(mothereduc.table[2,2]/N*100, 1)`\%) | `r mothereduc.table[1,2]` (`r round(mothereduc.table[1,2]/N*100, 1)`\%)
+$\textbf{Sex}$ |
+Female | `r sex.table[2,2]` (`r round(sex.table[2,2]/N*100, 1)`\%) | `r sex.table[1,2]` (`r round(sex.table[1,2]/N*100, 1)`\%)
+Male | `r sex.table[2,1]` (`r round(sex.table[2,1]/N*100, 1)`\%) | `r sex.table[1,1]` (`r round(sex.table[1,1]/N*100, 1)`\%)
+$\textbf{Race/ethnicity}$ |  
+Black | `r race.table[2,1]` (`r round(race.table[2,1]/N*100, 1)`\%) | `r race.table[1,1]` (`r round(race.table[1,1]/N*100, 1)`\%)
+Hispanic | `r race.table[2,2]` (`r round(race.table[2,2]/N*100, 1)`\%) | `r race.table[1,2]` (`r round(race.table[1,2]/N*100, 1)`\%)
+White | `r race.table[2,3]` (`r round(race.table[2,3]/N*100, 1)`\%) | `r race.table[1,3]` (`r round(race.table[1,3]/N*100, 1)`\%)
+$\textbf{Living with both biological parents}$ | 
+Lives with both biological parents | `r livebioparents.table[2,2]` (`r round(livebioparents.table[2,2]/N*100, 1)`\%) | `r livebioparents.table[1,2]` (`r round(livebioparents.table[1,2]/N*100, 1)`\%)
+Doesn't live with both biological parents | `r livebioparents.table[2,1]` (`r round(livebioparents.table[2,1]/N*100, 1)`\%) | `r livebioparents.table[1,1]` (`r round(livebioparents.table[1,1]/N*100, 1)`\%)
+$\textbf{BMI percentile}$ | `r round(mean(final_data$bmiz),1)` (mean) |  `r round(sd(final_data$bmiz),1)` (standard deviation)
+
 
 ## Marginal distribution of exposure and outcome:
 
