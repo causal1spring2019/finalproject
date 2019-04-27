@@ -325,6 +325,7 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 ```{r bootstrap}
 #I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
+
 #these two packages allow for paralellization of the analysis using multiple computer processor cores
 #library(foreach)
 #library(doParallel)
@@ -419,10 +420,12 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 ```
 
 ```{r using bootstrapped data}
-load("BootstrappedEstsFirst800.RData")
+load("BootstrappedEsts2000.RData")
+BootstrappedEsts2000 <- as.data.frame(BootstrappedEsts2000)
+BootstrappedEsts2000 <- BootstrappedEsts2000  %>% rename("gCompBoot" = V1, "IPTWboot" = V2)
 
 #make a long data version of the bootstrapped estimates to be able to plot them together on one histogram/density plot
-Bootstrapped_long <- gather(BootstrappedEstsFirst800, Estimator, value, gCompBoot:IPTWboot)
+Bootstrapped_long <- gather(BootstrappedEsts2000, Estimator, value, gCompBoot:IPTWboot)
 
 BootstrappedHist <- Bootstrapped_long %>% group_by(Estimator) %>%
     ggplot(aes(value, fill = Estimator)) +
@@ -431,13 +434,13 @@ BootstrappedHist <- Bootstrapped_long %>% group_by(Estimator) %>%
     scale_x_continuous(limits = c(0,0.1)) +
     xlab("Average Treatment Effect Value") +
     theme(legend.title=element_blank()) +
-    ggtitle("Histograms of G-comp and IPTW Estimands \n From 800 Bootstrap Repetitions") +
-  theme(text = element_text(size = 30))
+    ggtitle("Histograms of G-comp and IPTW Estimands \n From 2000 Bootstrap Repetitions") +
+  theme(text = element_text(size = 26))
 
 #little for loop to create confidence interval for each of the two estimators based on our bootstrapped data
 CIs <-matrix(rep(NA, 6), nrow = 2, ncol = 2)
 for (c in 1:2){
-   CI.quant  <- quantile(BootstrappedEstsFirst800[ ,c], prob=c(0.025,0.975))
+   CI.quant  <- quantile(BootstrappedEsts2000[ ,c], prob=c(0.025,0.975))
    CIs[c,] <- CI.quant
 }
 rownames(CIs) <-c("Gcomp","IPTW")
