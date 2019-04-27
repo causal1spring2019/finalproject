@@ -465,11 +465,11 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 ```
 
 
-## Structural Causal Model
-<!-- note that we can add comments like this that won't knit --> 
 
 
 # Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+
+\pagebreak
 
 <!-- The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
 
@@ -491,7 +491,12 @@ Our dataset:
 
 ## Original DAG
 <!--This is the original DAG we developed while looking at what was available in the dataset: -->
-!(DAG Causal Final Project_all covariates.png)
+
+
+```{r DAG Initial, echo=FALSE, include = TRUE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_all covariates.png")
+```
+
 
 <!--LIZZY TO TURN THIS INTO A REAL PARAGRAPH
 We decided to exclude the following covariates for these reasons:
@@ -502,7 +507,11 @@ We decided to exclude the following covariates for these reasons:
 Therefore, here is our final DAG for this analysis:-->
 
 ## Final DAG 
-!(DAG Causal Final Project_reduced covariates.png)
+```{r DAG Final, echo=FALSE, include = TRUE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
+```
+
+
 
 ## Structural Equations
 *LIZZY TO CLEAN THIS UP*
@@ -593,24 +602,36 @@ Incident drug use | `r outcome[1]` | `r outcome[2]`
 ## Identifiability
 
 <!--If there were no independence assumptions, this would be our DAG:-->
-!(DAG Causal Final Project_reduced covariates with Us.png)
+```{r DAG 3, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us.png")
+```
+
 
 ## Identifiability
 
 <!--In reality, we believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:-->
-!(DAG Causal Final Project_reduced covariates with Us_reality.png)
+```{r DAG 4, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_reality.png")
+```
 
 ## Identifiability
 
 <!--However, under this initial causal model the target parameter cannot be identified, because there are a large number of backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.-->
-!(DAG Causal Final Project_reduced covariates with Us_convenience.png)
+
+```{r DAG 5, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_convenience.png")
+```
+
 
 ## Identifiability
 
 <!--We could improve the plausibility of these additional independence assumptions by identifying potentially shared unknowns and gathering data on them so they can be controlled for in the model. For example, income; social status; and access to fresh, healthy food are all examples of potential shared confounders of biological mother's education and BMI. If we measured those variables and controlled for them in our model, it would be more plausible to assume independence between the unknowns contributing to both of those nodes. 
 
 Once these independence assumptions have been agreed to for convenience, we have d-separation and can proceed with our analysis using an identifiable target parameter, using the final DAG below.-->
-!(DAG Causal Final Project_reduced covariates with Us_final.png)
+```{r DAG 6, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_final.png")
+```
+
 
 
 ## Estimand and Statistical Model
