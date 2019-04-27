@@ -726,8 +726,8 @@ Our analysis includes a number of limitations. First, there were a number of cov
 The results of this analysis allow policymakers and school administrators to better identify youth who are at risk for starting to use drugs as a result of bullying, and provide them with additional services and social supports. It also supports the use of anti-bullying interventions in schools, as prevention of incident substance use later in life will also lead to a reduction in many of the adverse health outcomes associated with use of drugs.-->
 
 According to our analysis:
--the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04
--__causal interpretation__: if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. 
+- the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04
+- __causal interpretation__: if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. 
 
 ## Results
 
