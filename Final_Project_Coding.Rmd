@@ -133,6 +133,7 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
 
 
 
+
 ```{r positivity checking}
 
 
@@ -297,6 +298,8 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
 ```
+
+
 
 ```{r bootstrap}
 #breaking the boostrap into ten sections to make this easier on my little laptop
