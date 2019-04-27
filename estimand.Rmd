@@ -1,0 +1,19 @@
+---
+title: "Untitled"
+author: "Shelley Facente"
+date: "April 24, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+$$
+\begin{aligned}
+&\psi(\mathbb{P}_0) = \mathbb{E}_0[\mathbb{E}_0(Y|A = 1, W) - \mathbb{E}_0(Y|A = 0, W)] = \\ &\tiny\sum\limits_{w1,w2,w3,w4,w5}
+\small[\bar{Q}_0(1,  W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5) \  - \\
+&\small\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \bar{Q}_0(0, W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5)] \ * \\
+&\ \ \ \ \ \ \ \ \ \ \ \ \mathbb{P}_0(W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5)
+\end{aligned}
+$$
