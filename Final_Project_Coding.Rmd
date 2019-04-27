@@ -303,12 +303,12 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
 ```{r bootstrap}
-#breaking the boostrap into ten sections to make this easier on my little laptop
+
 set.seed(252)
 
 #section1#####
 #set the number of bootstrap iterations (B)
-B <- 8
+B <- 1000
 
 #set the total number in our sample
 n <- nrow(WAY)
