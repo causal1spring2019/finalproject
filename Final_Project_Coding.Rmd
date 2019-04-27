@@ -448,7 +448,6 @@ for (c in 1:2){
 }
 rownames(CIs) <-c("Gcomp","IPTW")
 colnames(CIs) <-c("95% CI Lower Limit", "95% CI Upper Limit")
-
 ```
 
 ```{r visualizing positivity}
@@ -690,7 +689,6 @@ IPTWDensityPlot
 - For G-comp and IPTW we performed a bootstrap
 
 ```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10}
-
 BootstrappedHist
 ```
 
@@ -784,7 +782,7 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
      \item Lizzy - Social and Substance Use Epi
    \end{enumerate}
    
-- Establishement of the causal model, delineation of the causal question and estimand of choice: Entire group
+- Establishment of the causal model, delineation of the causal question and estimand of choice: Entire group
 
 - Identifiability considerations: Entire group, with Lizzy and Shelley working on the DAG
 
