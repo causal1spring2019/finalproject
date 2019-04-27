@@ -469,7 +469,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 # Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
-\pagebreak
+
 
 <!-- The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
 
