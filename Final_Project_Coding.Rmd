@@ -476,9 +476,9 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 ## Specify a Causal Model
 
 Our dataset:
--National Longitudinal Survey of Youth 
--Nationally representative cohort of youth age 12-16
--Initial recruitment n = 9000 in 1997
+- National Longitudinal Survey of Youth 
+- Nationally representative cohort of youth age 12-16
+- Initial recruitment n = 9000 in 1997
 
 <!-- Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth age 12-16 (initial n=9000) in 1997. These youth have since been followed longitudinally. The target population is youth in the United States. -->
 
@@ -595,7 +595,7 @@ Incident drug use | `r outcome[1]` | `r outcome[2]`
 ## Identifiability
 
 <!--If there were no independence assumptions, this would be our DAG:-->
-```{r DAG 3, echo=FALSE, out.width = '100%'}
+```{r DAG 3, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us.png")
 ```
 
@@ -603,7 +603,7 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us.png
 ## Identifiability
 
 <!--In reality, we believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:-->
-```{r DAG 4, echo=FALSE, out.width = '100%'}
+```{r DAG 4, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_reality.png")
 ```
 
@@ -611,7 +611,7 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_rea
 
 <!--However, under this initial causal model the target parameter cannot be identified, because there are a large number of backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.-->
 
-```{r DAG 5, echo=FALSE, out.width = '100%'}
+```{r DAG 5, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_convenience.png")
 ```
 
@@ -621,7 +621,7 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_con
 <!--We could improve the plausibility of these additional independence assumptions by identifying potentially shared unknowns and gathering data on them so they can be controlled for in the model. For example, income; social status; and access to fresh, healthy food are all examples of potential shared confounders of biological mother's education and BMI. If we measured those variables and controlled for them in our model, it would be more plausible to assume independence between the unknowns contributing to both of those nodes. 
 
 Once these independence assumptions have been agreed to for convenience, we have d-separation and can proceed with our analysis using an identifiable target parameter, using the final DAG below.-->
-```{r DAG 6, echo=FALSE, out.width = '100%'}
+```{r DAG 6, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_final.png")
 ```
 
