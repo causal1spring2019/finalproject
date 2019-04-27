@@ -18,10 +18,7 @@ library(ltmle)
 library(knitr)
 library(tidyr)
 
-#these two packages allow for paralellization of the analysis using multiple computer processor cores
-library(foreach)
-library(doParallel)
-library(doRNG) #you need a particular package in order to make paralellization reproducible...eyeroll 
+
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -304,6 +301,10 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 ```{r bootstrap}
 #I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
+#these two packages allow for paralellization of the analysis using multiple computer processor cores
+#library(foreach)
+#library(doParallel)
+#library(doRNG) #you need a particular package in order to make paralellization reproducible...eyeroll 
 
 # set.seed(252)
 # 
