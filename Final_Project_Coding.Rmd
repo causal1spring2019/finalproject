@@ -473,9 +473,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 
 
-# Causal Question: 
-
-What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 ## Specify a Causal Model
 
@@ -489,9 +487,8 @@ Our dataset:
 <!-- Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth age 12-16 (initial n=9000) in 1997. These youth have since been followed longitudinally. The target population is youth in the United States. -->
 
 ## Original DAG
+
 <!--This is the original DAG we developed while looking at what was available in the dataset: -->
-
-
 ```{r DAG Initial, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
@@ -510,10 +507,18 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
 
 ## Structural Equations
 Our endogenous nodes include: $X = (W, A, Y)$, where $W = (W_1, W_2, W_3, W_4, W_5)$ is the set of baseline covariates, $A$ is victim of bullying, and $Y$ is incident drug use.
+  
+\vspace{12pt}
 
-Our background variables (exogenous nodes include): $U = (U_W, U_A, U_Y)$ ~ $\mathbb{P}_U$. We place no assumptions on the distribution $\mathbb{P}_U$.. We have not placed any restrictions on the functional form.
+Our background variables (exogenous nodes) include: $U = (U_W, U_A, U_Y)$ ~ $\mathbb{P}_U$.  
+  
+\vspace{12pt}
 
-Our structural equations $\mathcal{F}$:
+We place no assumptions on the distribution $\mathbb{P}_U$. We have not placed any restrictions on the functional form.
+
+## Structural Equations
+
+Our structural equations $\mathcal{F}$ are:
 
 $$
 \begin{aligned}
@@ -526,6 +531,9 @@ A &= f_A (U_A, W_1, W_2, W_3, W_4, W_5) \\
 Y &= f_Y (U_Y, A, W_1, W_2, W_3, W_4, W_5) \\
 \end{aligned}
 $$
+   
+\vspace{12pt}
+ 
 Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents; and $W_5$  = BMI. 
 
 ## Target Causal Parameter
