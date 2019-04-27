@@ -473,8 +473,9 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 
 
-# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+# Causal Question: 
 
+What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 ## Specify a Causal Model
 
