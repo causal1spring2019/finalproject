@@ -205,7 +205,8 @@ BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
                         group_by( bullied_bf_12_1997) %>% 
                         ggplot(aes(bmiz, fill = bullied_bf_12_1997)) +
                           geom_density(alpha=0.9) +
-                          scale_fill_brewer(palette = 3)
+                          scale_fill_brewer(palette = 3) +
+                          theme(text = element_text(size = 30))
 #BMIbybullyingstatus
 ggsave("BMIbybullyingstatus.pdf", BMIbybullyingstatus)
 
@@ -429,7 +430,8 @@ BootstrappedHist <- Bootstrapped_long %>% group_by(Estimator) %>%
     scale_x_continuous(limits = c(0,0.1)) +
     xlab("Average Treatment Effect Value") +
     theme(legend.title=element_blank()) +
-    ggtitle("Histograms of G-comp and IPTW Estimands \n From 800 Bootstrap Repetitions")
+    ggtitle("Histograms of G-comp and IPTW Estimands \n From 800 Bootstrap Repetitions") +
+  theme(text = element_text(size = 30))
 
 #little for loop to create confidence interval for each of the two estimators based on our bootstrapped data
 CIs <-matrix(rep(NA, 6), nrow = 2, ncol = 2)
@@ -447,15 +449,17 @@ colnames(CIs) <-c("95% CI Lower Limit", "95% CI Upper Limit")
 PositivityData <- WAY
 
 PositivityData$gAW <- gAW
+PositivityData$Y <- as.factor(PositivityData$Y)
 
-IPTWDensityPlot <- PositivityData %>% 
+IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
     ggplot(aes(gAW, fill = Y)) +
-    geom_density(position="identity") +
-    scale_fill_brewer(palette = 3) +
+    geom_density(alpha=0.4) +
+    scale_fill_brewer(palette = 3, labels = c("No drug use", "Drug Use")) +
     scale_x_continuous(limits = c(0,1)) +
     xlab("Probability of AW") +
     theme(legend.title=element_blank()) +
-    ggtitle("Density Plot of AW Probabilities By Outcome Group")
+    ggtitle("Density Plot of AW Probabilities By Outcome Group") +
+  theme(text = element_text(size = 30))
 
 ```
 
@@ -463,10 +467,9 @@ IPTWDensityPlot <- PositivityData %>%
 ## Structural Causal Model
 <!-- note that we can add comments like this that won't knit --> 
 
-<!-- All this below is just adapted from our proposal. --> 
 
 
-## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 ## Target Causal Parameter:
 
@@ -538,11 +541,6 @@ Incident drug use | `r outcome[1]` | `r outcome[2]`
 ## Identifiability
 
 
-## Estimand and Statistical Model
-```{r, include=TRUE, echo=TRUE}
-#just here as an example of a code chunk
-mean(Y)
-```
 
 ## Estimation: Unadjusted ATE & SuperLearner
 
@@ -552,11 +550,31 @@ mean(Y)
   - Library: `r SL.library`
   - 5-fold cross-validation
 
+## Checking for Practical Positivity Violations
+
+- We tabulated exposure and outcome across all possible levels of our categorical variables
+
+- Observations exist in every possible category of our variable set
+
+- Our for our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
+
+```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
+BMIbybullyingstatus
+```
+
+## Positivity: Assessing the Model Weights
+
+```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
+IPTWDensityPlot
+```
+
 ## Confidence Intervals
 
 - For TMLE, used the robust method built in to the ltmle package
+
 - For G-comp and IPTW we performed a bootstrap
-```{r}
+
+```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
 BootstrappedHist
 ```
 
@@ -600,4 +618,28 @@ mean | `r CVtable$Ave[9]` | `r CVtable$se[9]`
 loglinear | `r CVtable$Ave[10]` | `r CVtable$se[10]`
 
 
-## Results
+## Conclusions/Interpretation of Results
+
+## Contributions of the Team Members
+
+- Suggestion of a dataset and potential issues for exploration: Veronica
+
+- Particular expertise that we each contributed:
+\begin{enumerate}
+     \item Shelley - Project management
+     \item Stephanie - Pediatrics 
+     \item Veronica - Social and Substance Use Epi
+     \item Lizzy - Social and Substance Use Epi
+   \end{enumerate}
+   
+- Establishement of the causal model, delineation of the causal question and estimand of choice: Entire group
+
+- Identifiability considerations: Entire group, with Lizzy and Shelley working on the DAG
+
+- Creation of slides for causal question, SCM, background on our dataset: Lizzy and Shelley
+
+- Coding of SuperLearner estimation: Veronica
+
+- Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals: Stephanie
+
+- Interpretation of Results: Entire Group
