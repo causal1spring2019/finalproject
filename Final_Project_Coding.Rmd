@@ -129,7 +129,7 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
  
 ```
 
-```{r name zis chunkeh}
+```{r creation of Table 1}
 N <- nrow(final_data)
 
 #drug use
@@ -476,9 +476,6 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 # Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 
-
-
-
 ## Specify a Causal Model
 
 Our dataset:
@@ -499,13 +496,9 @@ knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
 
 
-<!--LIZZY TO TURN THIS INTO A REAL PARAGRAPH
-We decided to exclude the following covariates for these reasons:
--Sexual orientation - this wasn't associated with the exposure/outcome (strata are homogenous by sexual orientation (p=0.09), doesn't affect outcome)
--Citizenship - this is actually country of birth, which is not quite what we wanted
--Learning disability - this is actually learning or emotional problem, and the latter could be influenced by being bullied
+While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons. Sexual orientation wasn't associated with our exposure/outcome, and strata were homogenous by sexual orientation (p=0.09). Upon inspecting the NLSY codebook, citizenship was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship. Finally, learning disability  actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, being bullied, and thus excluded it.
 
-Therefore, here is our final DAG for this analysis:-->
+Therefore, below is our final DAG for this analysis:-->
 
 ## Final DAG 
 ```{r DAG Final, echo=FALSE, include = TRUE, out.width = '100%'}
@@ -515,32 +508,33 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
 
 
 ## Structural Equations
-*LIZZY TO CLEAN THIS UP*  
-Endogenous nodes: X = (W, A, Y), where W = (W1, W2, W3, W4, W5) is the set of baseline covariates, A is victim of bullying, and Y is drug use.
+Our endogenous nodes include: $X = (W, A, Y)$, where $W = (W_1, W_2, W_3, W_4, W_5)$ is the set of baseline covariates, $A$ is victim of bullying, and $Y$ is incident drug use.
 
-Background variables (Exogenous nodes): U = (UW, UA, UY) ~ PU. We place no assumptions on the distribution PU. We have not placed any restrictions on the functional forms.
+Our background variables (exogenous nodes include): $U = (U_W, U_A, U_Y)$ ~ $\mathbb{P}_U$. We place no assumptions on the distribution $\mathbb{P}_U$.. We have not placed any restrictions on the functional form.
 
-Structural equations F:
+Our structural equations $\mathcal{F}$:
 
-W1 = fW1 (UW1, W3)
-W2  = fW2  (UW2)
-W3  = fW3  (UW3)
-W4  = fW4 (UW4, W1)
-W5  = fW5 (UW5, W1, W2, W3)
-A = fA (UA, W1, W2, W3, W4, W5)
-Y = fY (UY, A, W1, W2, W3, W4, W5)
-
-W1 = Mother's education; W2  = Sex; W3  = Race/ethnicity;  W4  = Living with both biological parents; W5  = BMI
+$$
+\begin{aligned}
+W_1 &= f_{W_1} (U_{W_1}, W_3) \\
+W_2  &= f_{W_2}  (U_{W_2}) \\
+W_3  &= f_{W_3}  (U_{W_3}) \\
+W_4  &= f_{W_4} (U_{W_4}, W_1) \\
+W_5  &= f_{W_5} (U_{W_5}, W_1, W_2, W_3) \\
+A &= f_A (U_A, W_1, W_2, W_3, W_4, W_5) \\
+Y &= f_Y (U_Y, A, W_1, W_2, W_3, W_4, W_5) \\
+\end{aligned}
+$$
+Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents; and $W_5$  = BMI. 
 
 ## Target Causal Parameter
 
-  - Difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12:
+Our target causal parameter is the difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12:
 
 $$
 \psi^F (P_{U,X}) = P_{U,X} (Y_1 = 1) - P_{{U,X}}(Y_0=1) = E_{U,X}(Y_1) - E_{U,X}(Y_0)
 $$
-where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a.
-
+where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
 
 ## Our Observed Data
 
@@ -548,7 +542,7 @@ A: Bullying before the age of 12 (asked in 1997)
 
 Y: Incident drug use ("cocaine or other hard drugs") after 1997
 
-Ws: Race/ethnicity, age, sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline)
+Ws: Race/ethnicity, age (NOTE: I THINK THIS IS LEFTOVER AND SHOULD BE TAKEN OUT), sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
 
 Sample size: 7,703
 
