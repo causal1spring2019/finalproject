@@ -132,6 +132,9 @@ final_data$MomEduDi <- revalue(final_data$MomEduDi, c("1"="HighSchlOrLess", "2"=
 ```{r name zis chunkeh}
 N <- nrow(final_data)
 
+#drug use
+druguse <- table(final_data$ever_new_user2)
+
 #bullying
 bully.table <- table(final_data$ever_new_user2, final_data$bullied_bf_12_1997) 
 
@@ -496,6 +499,7 @@ We initially also considered: sexual orientation, learning/emotional disability,
 ## Table 1
 
 Covariate | Drug use (\%) |  No drug use (\%)
+ | `r druguse[2]` (`r druguse[2]/N`\%) | `r druguse[1]` (`r druguse[1]/N`\%)
 --------- | ---------- | --------- 
 $\textbf{Victim of bullying}$ |
 Yes | `r bully.table[2,2]` (`r round(race.table[2,2]/N*100, 1)`\%) | `r race.table[1,2]` (`r round(race.table[1,2]/N*100, 1)`\%)
