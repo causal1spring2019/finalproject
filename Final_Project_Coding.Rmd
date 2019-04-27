@@ -322,6 +322,7 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 ```
 
 
+
 ```{r bootstrap}
 #I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
 #these two packages allow for paralellization of the analysis using multiple computer processor cores
@@ -468,8 +469,30 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 <!-- note that we can add comments like this that won't knit --> 
 
 
-
 # Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+
+<!-- The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
+
+
+According to a 2012 paper, youth involved in bullying were more likely than students not involved in bullying to use substances, with bullying victims reporting the greatest levels of substance use.$^2$ Longitudinal analyses have shown that youth who experience mental or physical bullying, separately or in combination, were more likely to subsequently report use of substances (alcohol, cigarettes, marijuana, and inhalants). This finding held after controlling for baseline covariates (gender, grade level, ethnicity and substance).$^3$ 
+
+Drug use in adolescence or adulthood has been associated with adverse health outcomes, such as substance use disorder, overdose, infectious disease acquisition, and other major medical illnesses. Preventing bullying victimization may have downstream effects by preventing substance use initiation.$^4$ 
+
+To our knowledge, no studies have evaluated the relationship between bullying victimization and drug use using causal inference approaches. This study fills a gap in the literature by studying this question in a causal framework. -->
+
+## Specify a Causal Model
+
+Our dataset:
+-National Longitudinal Survey of Youth 
+-Nationally representative cohort of youth age 12-16
+-Initial recruitment n = 9000 in 1997
+
+<!-- Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth age 12-16 (initial n=9000) in 1997. These youth have since been followed longitudinally. The target population is youth in the United States. -->
+
+##
+This is the original DAG we developed while looking at what was available in the dataset:
+!(/DAG Causal Final Project_all covariates.png)
+
 
 ## Target Causal Parameter:
 
@@ -618,6 +641,7 @@ mean | `r CVtable$Ave[9]` | `r CVtable$se[9]`
 loglinear | `r CVtable$Ave[10]` | `r CVtable$se[10]`
 
 
+
 ## Conclusions/Interpretation of Results
 
 ## Contributions of the Team Members
@@ -643,3 +667,14 @@ loglinear | `r CVtable$Ave[10]` | `r CVtable$se[10]`
 - Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals: Stephanie
 
 - Interpretation of Results: Entire Group
+
+<!-- 
+
+## References
+
+$1.$ Ttofi MM, Farrington DP, Losel F, Crago RV, Theodorakis N. (2016) School bullying and drug use later in life: A meta-analytic investigation. School Psychology Quarterly. 31(1): 8-27.
+$2.$ Radliff KM, Wheaton JE, Robinson K, Morris J. (2012) Illuminating the relationship between bullying and substance use among middle and high school youth. Addictive Behaviors. 37(4): 569-572.
+$3.$ Tharp-Taylor S, Haviland A, D'Amico EJ. (2009) Victimization from mental and physical bullying and substance use in early adolescence. Addictive Behaviors. 34(6-7): 561-567.
+$4.$ Sarlin E. (2017) Substance Use Disorders Are Associated With Major Medical Illnesses and Mortality Risk in a Large Integrated Health Care System. Bethesda, MD: National Institute on Drug Abuse, October 24.
+-->
+
