@@ -668,7 +668,7 @@ This is our statistical estimand.
 
 - Observations exist in every possible category of our variable set
 
-- Our for our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
+- For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
 
 ```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
 
