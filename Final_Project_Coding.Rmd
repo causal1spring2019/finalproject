@@ -328,96 +328,101 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
 ```{r bootstrap}
-#I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
+# #I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
+# 
+# #these two packages allow for paralellization of the analysis using multiple computer processor cores
+# library(foreach)
+# library(doParallel)
+# library(doRNG) #you need a particular package in order to make paralellization reproducible...eyeroll 
+# 
+# set.seed(252)
+# 
+# 
+# #set the number of bootstrap iterations (B)
+# B <- 4
+# 
+# 
+# #set the total number in our sample
+# n <- nrow(WAY)
+# 
+# 
+# numCores <- detectCores()  #detect number of processor cores on the computer
+# registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
+# 
+# BootstrappedEsts <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dorng% {
+#   #this is just a paralellized  version of a for loop
+# 
+# #these create a new single sample which was resampled (with replacement)from our original sample
+# bootIndices<- sample(1:n, replace=T)
+# bootData<- WAY[bootIndices,]
+# 
+# #From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
+# 
+# 
+# # Create SL library
+# SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean")
+# 
+# 
+#   ##G-comp with SuperLearner##
+# 
+# # set treatment at 0 and 1
+# X0.boot = bootData
+# X0.boot$bullied = 0
+# 
+# X1.boot=bootData
+# X1.boot$bullied = 1
+# 
+# #create a dataset with just the A and Ws
+# WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
+# 
+# #run SL
+# SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# 
+# # get predicted outcomes under both scenarios
+# predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
+# predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
+# 
+# #g-comp for ATE
+# gComp.boot = mean(predict.1.boot-predict.0.boot)
+# 
+# 
+# 
+# ## Stabilized IPTW with SuperLearner ##
+# 
+# # make A a vector
+# A.boot=bootData$bullied
+# # just Ws
+# W.boot = subset(bootData, select=c(1:5))
+# 
+# # estimate treatment mechanism
+# gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
+# # predicted prob of observed treatment
+# pred.g1W.boot = gAW.sl.boot$SL.predict
+# pred.g0W.boot = 1- pred.g1W.boot
+# gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
+# # weights = 1/prob treatment
+# wt.boot = 1/gAW.boot
+# # Stabilized IPTW estimator
+# AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
+# IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
+# mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
+# 
+# 
+# 
+# 
+# ## TMLE ##
+# 
+# # ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
+# # tmle.summary.boot = summary(ltmle.SL.boot)
+# # TMLE.boot = tmle.summary.boot$effect.measures$ATE
+# 
+# 
+#   c(gComp.boot, IPTW.boot)
+# }
+# 
+# BootstrappedEsts <-as.data.frame(BootstrappedEsts)
 
-#these two packages allow for paralellization of the analysis using multiple computer processor cores
-library(foreach)
-library(doParallel)
-#library(doRNG) #you need a particular package in order to make paralellization reproducible...eyeroll 
-
-set.seed(252)
-
-#set the number of bootstrap iterations (B)
-B <- 4
-
-#set the total number in our sample
-n <- nrow(WAY)
-
-
-numCores <- detectCores()  #detect number of processor cores on the computer
-registerDoParallel(numCores)  # use multicore, set to the number of cores on this computer
-
-BootstrappedEsts <- foreach (b=1:B, .combine=rbind, .packages='SuperLearner') %dopar% {
-  #this is just a paralellized  version of a for loop
-
-#these create a new single sample which was resampled (with replacement)from our original sample
-bootIndices<- sample(1:n, replace=T)
-bootData<- WAY[bootIndices,]
-
-#From here to almost the end of the function is just Veronica's code from above but with all the various bits renamed to bootstrapped versions
-
-
-# Create SL library
-SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean")
-
-
-  ##G-comp with SuperLearner##
-
-# set treatment at 0 and 1
-X0.boot = bootData
-X0.boot$bullied = 0
-
-X1.boot=bootData
-X1.boot$bullied = 1
-
-#create a dataset with just the A and Ws
-WA.boot <- subset(bootData, select=c("KEY_RACE_ETHNICITY_1997", "KEY_SEX_1997","bmiz", "MomEduDi", "YOUTH_BOTHBIO.01_1997", "bullied"))
-
-#run SL
-SL.pred.boot = SuperLearner(Y=bootData$Y, X=WA.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
-
-# get predicted outcomes under both scenarios
-predict.1.boot = predict(SL.pred.boot, newdata=X1.boot)$pred
-predict.0.boot = predict(SL.pred.boot, newdata=X0.boot)$pred
-
-#g-comp for ATE
-gComp.boot = mean(predict.1.boot-predict.0.boot)
-
-
-## Stabilized IPTW with SuperLearner ##
-
-# make A a vector
-A.boot=bootData$bullied
-# just Ws
-W.boot = subset(bootData, select=c(1:5))
-
-# estimate treatment mechanism
-gAW.sl.boot = SuperLearner(Y=A.boot, X=W.boot, SL.library=SL.library, family='binomial', cvControl=list(V=5))
-# predicted prob of observed treatment
-pred.g1W.boot = gAW.sl.boot$SL.predict
-pred.g0W.boot = 1- pred.g1W.boot
-gAW.boot = ifelse(A==1, pred.g1W.boot, pred.g0W.boot)
-# weights = 1/prob treatment
-wt.boot = 1/gAW.boot
-# Stabilized IPTW estimator
-AY.boot = as.data.frame(cbind(A.boot,Y.boot=bootData$Y))
-IPTW.boot = mean( wt*as.numeric(AY.boot$A.boot==1)*AY.boot$Y.boot)/mean( wt*as.numeric(AY.boot$A.boot==1)) -
-mean( wt*as.numeric(AY.boot$A.boot==0)*AY.boot$Y.boot)/mean(wt*as.numeric(AY.boot$A.boot==0))
-
-
-## TMLE ##
-
-# ltmle.SL.boot<- ltmle(data=bootData, Anodes="bullied", Ynodes="Y", abar=list(1,0), SL.library=SL.library, attr(SL.library, "return.fit"))
-# tmle.summary.boot = summary(ltmle.SL.boot)
-# TMLE.boot = tmle.summary.boot$effect.measures$ATE
-
-
-  c(gComp.boot, IPTW.boot)
-}
-
-BootstrappedEsts <-as.data.frame(BootstrappedEsts)
-
-save(BootstrappedEsts, file = "BootstrappedEsts.RData")
+#save(BootstrappedEsts, file = "BootstrappedEsts.RData")
 
 
 
