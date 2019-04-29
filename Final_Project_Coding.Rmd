@@ -581,7 +581,7 @@ Yes | `r bully.table[2,2]` (`r round(bully.table[2,2]/N*100, 1)`\%) | `r bully.t
 No | `r bully.table[2,1]` (`r round(bully.table[2,1]/N*100, 1)`\%) | `r bully.table[1,1]` (`r round(bully.table[1,1]/N*100, 1)`\%)
 |||
 $\textbf{Mother's education}$ | | |
-High school or less | `r mothereduc.table[1,1]` (`r round(mothereduc.table[1,1]/N*100, 1)`\%) | `r mothereduc.table[2,1]` (`r round(mothereduc.table[2,1]/N*100, 1)`\%)
+High school or less | `r mothereduc.table[2,1]` (`r round(mothereduc.table[2,1]/N*100, 1)`\%) | `r mothereduc.table[1,1]` (`r round(mothereduc.table[1,1]/N*100, 1)`\%)
 Some college or more | `r mothereduc.table[2,2]` (`r round(mothereduc.table[2,2]/N*100, 1)`\%) | `r mothereduc.table[1,2]` (`r round(mothereduc.table[1,2]/N*100, 1)`\%)
 |||
 $\textbf{Sex}$ | | |
