@@ -759,9 +759,9 @@ The results of this analysis allow policymakers and school administrators to bet
 
 According to our analysis:  
 
-- the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04  
 - __Statistical interpretation__: being bullied before the age of 12 is associated with a 4% absolute increase in drug use compared with not being bullied 
-- __Causal interpretation__: if people are bullied, they have about a 4% increased likelihood of drug use later in life than people who are not bullied  
+
+- __Causal interpretation__: the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04  
 
 
 Estimator | ATE (95% CI)
