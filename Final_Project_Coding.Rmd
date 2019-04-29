@@ -539,7 +539,7 @@ $$
    
 \vspace{12pt}
  
-Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
+Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z-score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
 
 ## Target Causal Parameter
 
@@ -670,7 +670,7 @@ This is our statistical estimand.
 
 - Observations exist in every possible category of our variable set
 
-- For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z scores in the two exposure categories
+- For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories
 
 ```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
 
@@ -776,7 +776,7 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 \begin{itemize}
      \item Parent drug use 
      \item Mental health 
-     \item Other
+     \item And more...
    \end{itemize}
   
 2. Necessary independence assumptions
