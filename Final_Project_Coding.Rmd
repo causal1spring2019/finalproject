@@ -539,7 +539,7 @@ $$
    
 \vspace{12pt}
  
-Where A is bullying before the age of 12 (asked in 1997); Y is incident drug use ("cocaine or other hard drugs") after 1997; $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents; and $W_5$  = BMI z score. 
+Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
 
 ## Target Causal Parameter
 
