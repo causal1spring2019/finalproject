@@ -539,7 +539,7 @@ $$
    
 \vspace{12pt}
  
-Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents; and $W_5$  = BMI. 
+Where A is bullying before the age of 12 (asked in 1997); Y is incident drug use ("cocaine or other hard drugs") after 1997; $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents; and $W_5$  = BMI z score. 
 
 ## Target Causal Parameter
 
@@ -550,7 +550,8 @@ $$
 $$
 where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
 
-## Our Observed Data
+
+<!--## Our Observed Data
 
 A: Bullying before the age of 12 (asked in 1997)
 
@@ -561,7 +562,7 @@ Ws: Race/ethnicity, sex, BMI, not living with both biological parents, mother's 
 Sample size: 7,703
 
 The target population is youth in the United States.
-
+-->
 
 ## Link to the SCM
 
@@ -573,11 +574,11 @@ We assume that the observed data O = (W, A, Y) ~ $\mathbb{P}_0$ were generated b
 
 Covariate | Drug use (\%) |  No drug use (\%) |
 --------- | ---------- | --------- |
-$\textbf{Drug use (Total)}$ | `r druguse[2]` (`r round(druguse[2]/N,1)`\%) | `r druguse[1]` (`r round(druguse[1]/N,1)`\%) |
+$\textbf{Drug use (Total)}$ | `r druguse[2]` (`r round(druguse[2]/N*100,1)`\%) | `r druguse[1]` (`r round(druguse[1]/N*100,1)`\%) |
 |||
 $\textbf{Victim of bullying}$ | | |
-Yes | `r bully.table[2,2]` (`r round(race.table[2,2]/N*100, 1)`\%) | `r race.table[1,2]` (`r round(race.table[1,2]/N*100, 1)`\%)
-No | `r bully.table[2,1]` (`r round(race.table[2,1]/N*100, 1)`\%) | `r race.table[1,1]` (`r round(race.table[1,1]/N*100, 1)`\%)
+Yes | `r bully.table[2,2]` (`r round(bully.table[2,2]/N*100, 1)`\%) | `r bully.table[1,2]` (`r round(bully.table[1,2]/N*100, 1)`\%)
+No | `r bully.table[2,1]` (`r round(bully.table[2,1]/N*100, 1)`\%) | `r bully.table[1,1]` (`r round(bully.table[1,1]/N*100, 1)`\%)
 |||
 $\textbf{Mother's education}$ | | |
 High school or less | `r mothereduc.table[1,1]` (`r round(mothereduc.table[1,1]/N*100, 1)`\%) | `r mothereduc.table[2,1]` (`r round(mothereduc.table[2,1]/N*100, 1)`\%)
@@ -590,13 +591,13 @@ Male | `r sex.table[2,1]` (`r round(sex.table[2,1]/N*100, 1)`\%) | `r sex.table[
 $\textbf{Race/ethnicity}$ | | | 
 Black | `r race.table[2,1]` (`r round(race.table[2,1]/N*100, 1)`\%) | `r race.table[1,1]` (`r round(race.table[1,1]/N*100, 1)`\%)
 Hispanic | `r race.table[2,2]` (`r round(race.table[2,2]/N*100, 1)`\%) | `r race.table[1,2]` (`r round(race.table[1,2]/N*100, 1)`\%)
-White | `r race.table[2,3]` (`r round(race.table[2,3]/N*100, 1)`\%) | `r race.table[1,3]` (`r round(race.table[1,3]/N*100, 1)`\%)
+Non-Black, Non-Hispanic | `r race.table[2,3]` (`r round(race.table[2,3]/N*100, 1)`\%) | `r race.table[1,3]` (`r round(race.table[1,3]/N*100, 1)`\%)
 |||
 $\textbf{Living with both biological parents}$ | | |
 Yes | `r livebioparents.table[2,2]` (`r round(livebioparents.table[2,2]/N*100, 1)`\%) | `r livebioparents.table[1,2]` (`r round(livebioparents.table[1,2]/N*100, 1)`\%)
 No | `r livebioparents.table[2,1]` (`r round(livebioparents.table[2,1]/N*100, 1)`\%) | `r livebioparents.table[1,1]` (`r round(livebioparents.table[1,1]/N*100, 1)`\%)
 |||
-$\textbf{BMI percentile}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r round(mean(BMI.nodrugs$bmiz),3)` (*mean*) |
+$\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r round(mean(BMI.nodrugs$bmiz),3)` (*mean*) |
 \textcolor{white}{x} | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
 
