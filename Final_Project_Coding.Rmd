@@ -800,7 +800,9 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 - Creation of slides for causal question, SCM, background on our dataset: Lizzy and Shelley
 
-- Coding of SuperLearner estimation: Veronica
+- Creation of SuperLearner library: Veronica
+
+- Coding of ATE point estimates (unadjusted, G-comp, IPTW, TMLE): Veronica
 
 - Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals: Stephanie
 
