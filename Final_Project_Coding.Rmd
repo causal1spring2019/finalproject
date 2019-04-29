@@ -262,7 +262,7 @@ predict.SL.loglinear <- function(object, newdata, ...) {
 }
 
 # Create SL library
-SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean", "SL.loglinear")
+SL.library = c("SL.glm","SL.glm.interaction","SL.glmnet", "SL.bayesglm", "SL.randomForest",  "SL.step", "SL.mean")
 
 
 ##G-comp with SuperLearner##
@@ -722,14 +722,14 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 Algorithm | A Risk | A Coefficient | Y Risk | Y Coefficient
 --------- | ---------- | --------- | ---------- | ---------
-glm | `r ltmle.SL$fit$g[[2]]$bullied[1,1]` | `r ltmle.SL$fit$g[[2]]$bullied[1,2]` | `r ltmle.SL$fit$Q[[2]]$Y[1.1]` | `r ltmle.SL$fit$Q[[2]]$Y[1,2]`
-glm.interaction | `r ltmle.SL$fit$g[[2]]$bullied[2,1]` | `r ltmle.SL$fit$g[[2]]$bullied[2,2]` | `r ltmle.SL$fit$Q[[2]]$Y[2,1]` | `r ltmle.SL$fit$Q[[2]]$Y[2,2]`
-glmnet | `r ltmle.SL$fit$g[[2]]$bullied[3,1]` | `r ltmle.SL$fit$g[[2]]$bullied[3,2]` | `r ltmle.SL$fit$Q[[2]]$Y[3,1]` | `r ltmle.SL$fit$Q[[2]]$Y[3,2]`
-bayesglm | `r ltmle.SL$fit$g[[2]]$bullied[4,1]` | `r ltmle.SL$fit$g[[2]]$bullied[4,2]` | `r ltmle.SL$fit$Q[[2]]$Y[4,1]` | `r ltmle.SL$fit$Q[[2]]$Y[4,2]`
-randomForest | `r ltmle.SL$fit$g[[2]]$bullied[5,1]` | `r ltmle.SL$fit$g[[2]]$bullied[5,2]` | `r ltmle.SL$fit$Q[[2]]$Y[5,1]` | `r ltmle.SL$fit$Q[[2]]$Y[5,2]`
-step | `r ltmle.SL$fit$g[[2]]$bullied[6,1]` | `r ltmle.SL$fit$g[[2]]$bullied[6,2]` | `r ltmle.SL$fit$Q[[2]]$Y[6,1]` | `r ltmle.SL$fit$Q[[2]]$Y[6,2]`
-mean | `r ltmle.SL$fit$g[[2]]$bullied[7,1]` | `r ltmle.SL$fit$g[[2]]$bullied[7,2]` | `r ltmle.SL$fit$Q[[2]]$Y[7,1]` | `r ltmle.SL$fit$Q[[2]]$Y[7,2]`
-loglinear | `r ltmle.SL$fit$g[[2]]$bullied[8,1]` | `r ltmle.SL$fit$g[[2]]$bullied[8,2]` | `r ltmle.SL$fit$Q[[2]]$Y[8,1]` | `r ltmle.SL$fit$Q[[2]]$Y[8,2]`
+glm | `r round(ltmle.SL$fit$g[[2]]$bullied[1,1],4)` | `r ltmle.SL$fit$g[[2]]$bullied[1,2]` | `r round(ltmle.SL$fit$Q[[2]]$Y[1.1],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[1,2],4)`
+glm.interaction | `r round(ltmle.SL$fit$g[[2]]$bullied[2,1],4)` | `r round(ltmle.SL$fit$g[[2]]$bullied[2,2],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[2,1],4)` | `r ltmle.SL$fit$Q[[2]]$Y[2,2]`
+glmnet | `r round(ltmle.SL$fit$g[[2]]$bullied[3,1],4)` | `r ltmle.SL$fit$g[[2]]$bullied[3,2]` | `r round(ltmle.SL$fit$Q[[2]]$Y[3,1],4)` | `r ltmle.SL$fit$Q[[2]]$Y[3,2]`
+bayesglm | `r round(ltmle.SL$fit$g[[2]]$bullied[4,1],4)` | `r ltmle.SL$fit$g[[2]]$bullied[4,2]` | `r round(ltmle.SL$fit$Q[[2]]$Y[4,1],4)` | `r ltmle.SL$fit$Q[[2]]$Y[4,2]`
+randomForest | `r round(ltmle.SL$fit$g[[2]]$bullied[5,1],4)` | `r round(ltmle.SL$fit$g[[2]]$bullied[5,2],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[5,1],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[5,2],4)`
+step | `r round(ltmle.SL$fit$g[[2]]$bullied[6,1],4)` | `r round(ltmle.SL$fit$g[[2]]$bullied[6,2],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[6,1],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[6,2],4)`
+mean | `r round(ltmle.SL$fit$g[[2]]$bullied[7,1],4)` | `r round(ltmle.SL$fit$g[[2]]$bullied[7,2],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[7,1],4)` | `r round(ltmle.SL$fit$Q[[2]]$Y[7,2],4)`
+
 
 
 ## Estimation: SuperLearner performance
@@ -737,19 +737,18 @@ CV.SuperLearner
 
 Algorithm | Avg Risk | SE 
 --------- | ---------- | --------- 
-SuperLearner | `r CVtable$Ave[1]` | `r CVtable$se[1]`
-Discrete SL | `r CVtable$Ave[2]` | `r CVtable$se[2]`
-glm | `r CVtable$Ave[3]` | `r CVtable$se[3]`
-glm.interaction | `r CVtable$Ave[4]` | `r CVtable$se[4]`
-glmnet | `r CVtable$Ave[5]` | `r CVtable$se[5]`
-bayesglm | `r CVtable$Ave[6]` | `r CVtable$se[6]`
-randomForest | `r CVtable$Ave[7]` | `r CVtable$se[7]`
-step | `r CVtable$Ave[8]` | `r CVtable$se[8]`
-mean | `r CVtable$Ave[9]` | `r CVtable$se[9]`
-loglinear | `r CVtable$Ave[10]` | `r CVtable$se[10]`
+SuperLearner | `r round(CVtable$Ave[1],4)` | `r round(CVtable$se[1],4)`
+Discrete SL | `r round(CVtable$Ave[2],4)` | `r round(CVtable$se[2],4)`
+glm | `r round(CVtable$Ave[3],4)` | `r round(CVtable$se[3],4)`
+glm.interaction | `r round(CVtable$Ave[4],4)` | `r round(CVtable$se[4],4)`
+glmnet | `r round(CVtable$Ave[5],4)` | `r round(CVtable$se[5],4)`
+bayesglm | `r round(CVtable$Ave[6],4)` | `r round(CVtable$se[6],4)`
+randomForest | `r round(CVtable$Ave[7],4)` | `r round(CVtable$se[7],4)`
+step | `r round(CVtable$Ave[8],4)` | `r round(CVtable$se[8],4)`
+mean | `r round(CVtable$Ave[9],4)` | `r round(CVtable$se[9],4)`
 
 
-## Results
+## Interpret results
 <!--According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04, causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher; it makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
 Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE.
