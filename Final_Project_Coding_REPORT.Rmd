@@ -477,7 +477,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 
 
-# Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
 
@@ -601,7 +601,7 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 \textcolor{white}{x}   | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
 
-
+<!-- 
 ## Marginal distribution of exposure and outcome:
 
 ```{r, include=FALSE}
@@ -615,8 +615,7 @@ Variable | No | Yes
 -------- | ------- | -------
 Bullied < 12 | `r exposure[1]` | `r exposure[2]`
 Incident drug use | `r outcome[1]` | `r outcome[2]`
-
-
+-->
 
 ## Identifiability
 
@@ -825,8 +824,6 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 - Identifiability considerations: Entire group, with Lizzy and Shelley working on the DAG
 
-- Creation of slides for causal question, SCM, background on our dataset: Lizzy and Shelley
-
 - Data cleaning and multiple imputation of missing covariate data: Veronica
 
 - Creation of SuperLearner library: Veronica
@@ -837,6 +834,7 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 - Interpretation of Results: Entire Group
 
+- Write up: Veronica drafted the estimation and results sections, ADD YOUR OWN HERE.
 
 
 ## References
