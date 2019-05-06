@@ -694,7 +694,9 @@ Ultimately we chose to truncate the weights to stabilize the estimates at the ex
 
 <!-- how did we decide to truncate the weights? -->
 
-## Estimation: Set-up
+## Estimation
+
+We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). We used SuperLearner for prediction with all estimators. SuperLearner uses v-fold cross-validation to create a convex combination of algorithms, drawing from a pre-specified library, that minimizes a loss function (non-negative least squares, by default).
 
 - We use SuperLearner for prediction in all models. 
   - Library: `r SL.library`
