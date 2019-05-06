@@ -474,8 +474,14 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 ```
 
-
-
+Steps of the causal roadmap:
+1. Specify Causal Model representing real background knowledge
+2. Specify Causal Question
+3. Specify Observed Data and link to causal model
+4. Identify: Knowledge + data sufficient?
+5. Commit to an estimand as close to question as possible, and a statistical model representing real knowledge.
+6. Estimate
+7. Interpret Results
 
 ## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
