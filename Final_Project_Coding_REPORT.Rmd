@@ -167,7 +167,7 @@ SexOrientTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_d
 
 #calculating test of homogeneity between strata of sexual orientation
 epi.2by2(SexOrientTable)
-#decision made to not use this variable based on small numbers, and no association with the measures of disease (looking at a test of homogeneity between strata)
+#decision made to not use this variable based on small numbers (n=269), and no association with the measures of disease (looking at a test of homogeneity between strata)
 
 #just learning/emotional problem with exp/out
 LearningTable <- table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data$ever_new_user2, 2),
@@ -183,8 +183,6 @@ CitizenTable <-table(relevel(final_data$bullied_bf_12_1997,2),relevel(final_data
       final_data$CV_CITIZENSHIP_1997,
       useNA="ifany")
 
-#calculating test of homogeneity between strata of Citizenship (aka birthplace)
-epi.2by2(CitizenTable)
 #decision made to not use this variable because so few children were born outside the US and we're not sure if birthplace is really getting at the SES/hardship construct that we were trying to get with citizenship data
 
 
