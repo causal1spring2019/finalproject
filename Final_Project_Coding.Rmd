@@ -665,27 +665,34 @@ This is our statistical estimand.
 
 
 
+\newpage
 
 ## Positivity 
-  Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates might be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. It was noted that (in the race variable) there were very few observations in the 'mixed race' group (n= ), leading to multiple practical positivity violations. 
+  Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates might be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. It was noted that (in the race variable) fewer  than 1% of the observations in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
+  
+  Whether or not a participant had any same-sex romantic partners was also initially chosen as a potential covariate in the model. There were very few participants with one or more same sex partners (n=269 or <4%). Moreover, when two by two tables relating bullying and drug use were stratified by whether or not a participant had a same sex partner, there was no significant difference in the measure of association between the strata (test of homogeneity $\chi^2$ value 1.49, p=0.223). This suggests that the covariate set could likely be restricted to exclude this variable with minimal effect on our target of inference, and thus this variable was not included in the analyses.
 
-- Observations exist in every possible category of our variable set
+  For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
 
-- For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories
-
-```{r, include = TRUE, echo = FALSE, fig.width=14, fig.height = 6}
+```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 5}
 
 BMIbybullyingstatus
-
 ```
 
-## Positivity: Assessing the Model Weights
 
-```{r, include = TRUE, echo = FALSE, fig.width= 16, fig.height = 10}
+
+  We also observed the distribution of propensity scores of each covariate-exposure combination and created density plots of this differentiationg between those with each outcome. These show a bimodal distribution (see below; as expected given that many of the covariates are bivariate), with roughly equal support between outcome groups. See below.
+  
+```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 8}
 
 IPTWDensityPlot
 
 ```
+
+Ultimately we chose to truncate the weights to stabilize the estimates at the extreme observation values. Our raw weights ranged from 1.081 to 11.562, though only 30 of these observations had weigts greater than ten.
+
+
+<!-- how did we decide to truncate the weights? -->
 
 ## Estimation: Set-up
 
@@ -697,9 +704,11 @@ IPTWDensityPlot
 
 ## Confidence Intervals
 
-- For TMLE, used the robust method built in to the ltmle package
+As moderately complicated modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimatnd, we used the robust method built in to the ltmle package to obtain a conference interval. This package implements two separate methods: an influence cure based method as well as a robust method which uses TMLE to estimate the variance. Whichever method will produce the more conservative interval is used. 
 
-- For G-comp and IPTW we performed a bootstrap
+  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As superlearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. This may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions do not line up.
+  
+  The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time-constraints making it difficult to run bootstraps on 3 separate superlearner runs.
 
 ```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10}
 BootstrappedHist
@@ -828,3 +837,4 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 4. Sarlin E. (2017) Substance Use Disorders Are Associated With Major Medical Illnesses and Mortality Risk in a Large Integrated Health Care System. Bethesda, MD: National Institute on Drug Abuse, October 24.
 
+5. Petersen M, Porter KE, Gruber S, Wang Y, van der Laan MJ. (2012) Diagnosing and responding to violations in the positivity assumption. Stats Methods Med Res. 21(1):31-54
