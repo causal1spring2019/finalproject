@@ -707,10 +707,10 @@ In summary, in our final set of variables, we are confident that an adequate vol
 We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each estimator is below. 
 
 Simple Substitution: 
-$\hat\Psi(P_n) = \sum_{W}[E_0(Y|A=1,W=w)-E_0(Y|A=0,W=w)]P_0(W=w)$
+$\hat\Psi(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}(1,W_i)-\hat{\overlineQ}(0,W_i)$
 
 IPTW with stabilized weights:
-$\hat\Psi(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}}$
+$\hat\Psi(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
 
 TMLE: 
 $\hat\Psi(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
