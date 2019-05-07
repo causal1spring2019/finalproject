@@ -493,8 +493,11 @@ What is the effect of having been bullied prior to age 12 on incidence of drug u
 ### DAG
 
 While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons (which will be discussed in more detail in the Positivity section). 
+
 - $\textbf{Sexual orientation}$ was predominantly reported as same-sex partners only, and our measure of association was homogenous across strata of sexual orientation (p=0.09). 
+
 - Upon inspecting the NLSY codebook, $\textbf{citizenship}$ was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship, and very few subjects reported being born outside of the U.S.
+
 - Finally, $\textbf{learning disability}$ actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, in which case it would be on the causal pathway and we would not want to control for it. 
 
 Therefore, below is our final DAG for this analysis:
@@ -554,6 +557,8 @@ Sample size: 7,703
 
 The target population is youth in the United States.
 
+The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation, with change equations, to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset rather than imputing multiple to assess account for variations in the imputed value. 
+
 
 ### Link to the SCM
 
@@ -593,7 +598,7 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 
 ## 5. Identify
 
-We believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:
+Under our initial causal model, our target parameter would not be identifiable. We believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:
 ```{r DAG 4, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_reality.png")
 ```
@@ -624,23 +629,31 @@ This is our statistical estimand.
 
 ### Estimators Used
 
-We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each estimator is below. 
+We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). We also calculated the unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed). The formula for each estimator is below. 
 
-Simple Substitution: 
+#### Simple Substitution: 
+
 $\hat\Psi_{SS}(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}}(1,W_i)-\hat{\overline{Q}}(0,W_i))$
+
 - $P_n$ is the empirical distribution and $\hat{\overline{Q}}(A,W)$ is the estimate of the emprical mean of Y, given A and W (a vector of baseline covariates).
 
-IPTW with stabilized weights:
+#### IPTW with stabilized weights:
+
 $\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
+
 - $\hat{g}(1|W_i)$ is an estimate of the propensity score.
 
-TMLE: 
+#### TMLE: 
+
 $\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+
 - $\overline{Q^*_n}(A,W)$ is the targeted estimate of the conditional mean outcome, given A and W.
 
 We used SuperLearner for prediction with all estimators. Drawing from a pre-specified library of candidate algorithms, SuperLearner uses V-fold cross-validation to create a convex combination of algorithms that minimizes a loss function (non-negative least squares, by default). Because we only had 319 people in our data who were bullied and who later use drugs, we set the number of folds to 5 (keeping in mind that CV.SuperLearner would break each fold into an additional 5 folds). 
 
 Consistent with our nonparametric model assumptions, we included an array of candidate algorithms in the SuperLearner library, including parametric and nonparametric appraoches. Specifically, we included glm, glm.interaction, glmnet, bayesglm, randomForest, step, and mean in the library. All of these are appropriate for binary outcomes. GLM fits a generalized linear model including all of the main terms in the model. Glm.interaction adds to this second-order polynomials and main-term interactions. Glmnet implements a peanized likelihood model with LASSO or elastic net regularization. Bayesglm uses a Bayesian approach to fit a glm, rather than a frequentist (maximum likelihood) appraoch. RandomForest is a machine learning algorithm using decision trees. Step does forward and backward model selection using AIC. Lastly, mean takes the mean of Y, which we included for reference.
+
+Our team also wrote our own wrapper for performing a log-linear model. However, due to the computational resources needed to bootstrap confidence intervals, we determined that we needed to do so in a paralellized fashion. Our self-made wrapper produced unusual errors when paralellized resulting in a failure to bootstrap and ultimately the wrapper was dropped. Regardless, it generally received a low weight in the superlearner algorithms and therefore removing this wrapper likely did not adversely affect our analysis.
 
 
 ### Positivity 
@@ -667,14 +680,14 @@ IPTWDensityPlot
 
 ```
 
-In summary, in our final set of variables, we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. Thus, we may proceed with estimation without concerns over practical positivity violations.
+In summary, in our final set of variables, we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. We chose not to look at truncation of the weights as we had good overlap between weights and chose to avoid introducing bias in this manner. Thus, we may proceed with estimation without concerns over practical positivity violations.
 
 
 ### Confidence Intervals
 
   As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimatnd, we used the robust method built in to the ltmle package to obtain a conference interval. This package implements two separate methods: an influence cure based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
 
-  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As superlearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimatnds may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have different mean values. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
+  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As superlearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimatnds may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have substantively different means and standard errors. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
   
   The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time constraints making it difficult to run bootstraps on 3 separate superlearner runs (those for G-computation, IPTW and TMLE).
 
@@ -684,7 +697,7 @@ BootstrappedHist
 
 
 ### Results
-The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use. The G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model. 
+The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use.
 
 Table 2: Average Treatment Effect estimates
 
@@ -728,46 +741,15 @@ mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 ## 8. Interpret results
 
 ### Interpretation
-According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
-Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE.
+According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. The statistical interpretaion of this is that being bullied before the age of 12 is associated with a 4% absolute increase in drug use compared with not being bullied. The causal interpretation is that the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
-Our analysis includes a number of limitations. First, there were a number of covariates that were exogenous, which we would have measured and included had we been prospectively collecting data instead of using an existing dataset. As one important example of this, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would obviously have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use). Second, while the data were collected, we did not include any mental health variables as endogenous variables in our model, because the questions were extremely vague, and the temporality was unclear (i.e., we couldn't determine that mental health wasn't caused by exposure). Mental health is likely an important covariate to include in this analysis, potentially as a confounder or a mediator of the exposure and outcome. And third, the independence assumptions that we created out of necessity identify the target causal parameter were likely not correct, introducing confounder-based biased into our results.
+Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE. Moreover, the G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model.
+
+Our analysis includes a number of limitations. First, there were a number of covariates that were exogenous, which we would have measured and included had we been prospectively collecting data instead of using an existing dataset. As one important example of this, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would obviously have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use). Second, while the data were collected, we did not include any mental health variables as endogenous variables in our model, because the questions were extremely vague, and the temporality was unclear (i.e., we couldn't determine that mental health wasn't caused by exposure). Mental health is likely an important covariate to include in this analysis, potentially as a confounder or a mediator of the exposure and outcome. And third, the independence assumptions that we created out of necessity identify the target causal parameter were likely not correct, introducing confounder-based biased into our results. Finally, his was not a random sample (our link was simplified for this project) and in subsequent analyses we would plan to use the sample weights such that these analyses would be reflective of the US population, as intended when the study was designed.
 
 The results of this analysis allow policymakers and school administrators to better identify youth who are at risk for starting to use drugs as a result of bullying, and provide them with additional services and social supports. It also supports the use of anti-bullying interventions in schools, as prevention of incident substance use later in life will also lead to a reduction in many of the adverse health outcomes associated with use of drugs.
 
-According to our analysis:  
-
-- __Statistical interpretation__: being bullied before the age of 12 is associated with a 4% absolute increase in drug use compared with not being bullied 
-
-- __Causal interpretation__: the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04  
-
-
-Estimator | ATE (95% CI)
---------------- | ---------------
-G-computation | `r round(gComp, 3)` (`r round(CIs[1,1],3)`, `r round(CIs[1,2],3)`)
-Stabilized IPTW | `r round(IPTW, 3)` (`r round(CIs[2,1],3)`, `r round(CIs[2,2],3)`)
-TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI[1,2], 3)`)
-
-
-## Limitations
-
-1. Important exogenous variables  
-\begin{itemize}
-     \item Parent drug use 
-     \item Mental health 
-     \item And more...
-   \end{itemize}
-  
-2. Necessary independence assumptions
-
-3. This was not a random sample (our link was simplified for this project).
-
-## Impacts
-
-- Identify youth who are at risk for starting to use drugs as a result of bullying  
-
-- Supports use of anti-bullying interventions in schools
 
 
 ## Contributions of the Team Members
@@ -796,7 +778,7 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 - Interpretation of Results: Entire Group
 
-- Write up: Veronica drafted the estimation and results sections, ADD YOUR OWN HERE.
+- Write up: Veronica drafted the estimation and results sections, Stephanie drafted positivity and confidence interval sections, Lizzy drafted the background and structural causal model sections, Shelley drafted the interpretation and indentifiability sections. We revised as a team.
 
 
 ## References
