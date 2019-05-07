@@ -622,26 +622,28 @@ This is our statistical estimand.
 
 ## 7. Estimate
 
+### Estimators Used
 
-## 8. Interpret results
+We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each estimator is below. 
+
+Simple Substitution: 
+$\hat\Psi_{SS}(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}}(1,W_i)-\hat{\overline{Q}}(0,W_i))$
+- $P_n$ is the empirical distribution and $\hat{\overline{Q}}(A,W)$ is the estimate of the emprical mean of Y, given A and W (a vector of baseline covariates).
+
+IPTW with stabilized weights:
+$\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
+- $\hat{g}(1|W_i)$ is an estimate of the propensity score.
+
+TMLE: 
+$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+- $\overline{Q^*_n}(A,W)$ is the targeted estimate of the conditional mean outcome, given A and W.
+
+We used SuperLearner for prediction with all estimators. Drawing from a pre-specified library of candidate algorithms, SuperLearner uses V-fold cross-validation to create a convex combination of algorithms that minimizes a loss function (non-negative least squares, by default). Because we only had 319 people in our data who were bullied and who later use drugs, we set the number of folds to 5 (keeping in mind that CV.SuperLearner would break each fold into an additional 5 folds). 
+
+Consistent with our nonparametric model assumptions, we included an array of candidate algorithms in the SuperLearner library, including parametric and nonparametric appraoches. Specifically, we included glm, glm.interaction, glmnet, bayesglm, randomForest, step, and mean in the library. All of these are appropriate for binary outcomes. GLM fits a generalized linear model including all of the main terms in the model. Glm.interaction adds to this second-order polynomials and main-term interactions. Glmnet implements a peanized likelihood model with LASSO or elastic net regularization. Bayesglm uses a Bayesian approach to fit a glm, rather than a frequentist (maximum likelihood) appraoch. RandomForest is a machine learning algorithm using decision trees. Step does forward and backward model selection using AIC. Lastly, mean takes the mean of Y, which we included for reference.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Positivity 
+### Positivity 
   Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
   
   In the race variable, fewer than 1% of the observations were in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
@@ -667,28 +669,8 @@ IPTWDensityPlot
 
 In summary, in our final set of variables, we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. Thus, we may proceed with estimation without concerns over practical positivity violations.
 
-## Estimation
 
-We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each estimator is below. 
-
-Simple Substitution: 
-$\hat\Psi_{SS}(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}}(1,W_i)-\hat{\overline{Q}}(0,W_i))$
-- $P_n$ is the empirical distribution and $\hat{\overline{Q}}(A,W)$ is the estimate of the emprical mean of Y, given A and W (a vector of baseline covariates).
-
-IPTW with stabilized weights:
-$\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
-- $\hat{g}(1|W_i)$ is an estimate of the propensity score.
-
-TMLE: 
-$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
-- $\overline{Q^*_n}(A,W)$ is the targeted estimate of the conditional mean outcome, given A and W.
-
-We used SuperLearner for prediction with all estimators. Drawing from a pre-specified library of candidate algorithms, SuperLearner uses V-fold cross-validation to create a convex combination of algorithms that minimizes a loss function (non-negative least squares, by default). Because we only had 319 people in our data who were bullied and who later use drugs, we set the number of folds to 5 (keeping in mind that CV.SuperLearner would break each fold into an additional 5 folds). 
-
-Consistent with our nonparametric model assumptions, we included an array of candidate algorithms in the SuperLearner library, including parametric and nonparametric appraoches. Specifically, we included glm, glm.interaction, glmnet, bayesglm, randomForest, step, and mean in the library. All of these are appropriate for binary outcomes. GLM fits a generalized linear model including all of the main terms in the model. Glm.interaction adds to this second-order polynomials and main-term interactions. Glmnet implements a peanized likelihood model with LASSO or elastic net regularization. Bayesglm uses a Bayesian approach to fit a glm, rather than a frequentist (maximum likelihood) appraoch. RandomForest is a machine learning algorithm using decision trees. Step does forward and backward model selection using AIC. Lastly, mean takes the mean of Y, which we included for reference.
-
-
-## Confidence Intervals
+### Confidence Intervals
 
   As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimatnd, we used the robust method built in to the ltmle package to obtain a conference interval. This package implements two separate methods: an influence cure based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
 
@@ -701,7 +683,7 @@ BootstrappedHist
 ```
 
 
-## Results
+### Results
 The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use. The G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model. 
 
 Table 2: Average Treatment Effect estimates
@@ -743,8 +725,9 @@ randomForest | `r round(CVtable$Ave[7],5)` | `r round(CVtable$se[7],5)`
 step | `r round(CVtable$Ave[8],5)` | `r round(CVtable$se[8],5)`
 mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 
+## 8. Interpret results
 
-## Interpretation
+### Interpretation
 According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
 Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE.
@@ -765,6 +748,7 @@ Estimator | ATE (95% CI)
 G-computation | `r round(gComp, 3)` (`r round(CIs[1,1],3)`, `r round(CIs[1,2],3)`)
 Stabilized IPTW | `r round(IPTW, 3)` (`r round(CIs[2,1],3)`, `r round(CIs[2,2],3)`)
 TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI[1,2], 3)`)
+
 
 ## Limitations
 
