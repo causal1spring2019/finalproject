@@ -707,13 +707,16 @@ In summary, in our final set of variables, we are confident that an adequate vol
 We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each estimator is below. 
 
 Simple Substitution: 
-$\hat\Psi(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}(1,W_i)-\hat{\overlineQ}(0,W_i)$
+$\hat\Psi_{SS}(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}}(1,W_i)-\hat{\overline{Q}}(0,W_i))$
+- $P_n$ is the empirical distribution and $\hat{\overline{Q}}(A,W)$ is the estimate of the emprical mean of Y, given A and W (a vector of baseline covariates).
 
 IPTW with stabilized weights:
-$\hat\Psi(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
+$\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$
+- $\hat{g}(1|W_i)$ is an estimate of the propensity score.
 
 TMLE: 
-$\hat\Psi(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+- $\overline{Q^*_n}(A,W)$ is the targeted estimate of the conditional mean outcome, given A and W.
 
 We used SuperLearner for prediction with all estimators. Drawing from a pre-specified library of candidate algorithms, SuperLearner uses V-fold cross-validation to create a convex combination of algorithms that minimizes a loss function (non-negative least squares, by default). Because we only had 319 people in our data who were bullied and who later use drugs, we set the number of folds to 5 (keeping in mind that CV.SuperLearner would break each fold into an additional 5 folds). 
 
