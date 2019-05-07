@@ -156,7 +156,6 @@ BMI.druguse <- subset(final_data, ever_new_user2=="DrugUse", select=bmiz)
 BMI.nodrugs <- subset(final_data, ever_new_user2=="NoDrugUse", select=bmiz)
 ```
 
-
 ```{r positivity checking}
 
 
@@ -222,7 +221,6 @@ BMIbybullyingstatusBox <- final_data %>% filter(bmiz> -15) %>%
 ggsave("BMIbybullyingstatusBox.pdf", BMIbybullyingstatusBox)
 
 ```
-
 
 ``` {r estimate, cache = TRUE}
 #7. Estimate
@@ -323,8 +321,6 @@ unadjusted = mean(WAY$Y[WAY$bullied==1]) - mean(WAY$Y[WAY$bullied==0])
 
 
 ```
-
-
 
 ```{r bootstrap}
 # #I've commented out this ENTIRE chunk, merely so it doesn't try to bootstrap every time we knit our slides/report 
@@ -474,17 +470,10 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 ```
 
-Steps of the causal roadmap (from the final project assignment):
-1. Specify the scientific question
-2. Specify a causal model
-3. Translate your question into a formal target casual parameter, defined using counterfactuals
-4. Specify your observed data and its link to the causal model
-5. Identify
-6. Commit to a statistical model and estimand (target parameter of the observed data distribution)
-6. Estimate
-7. Interpret results
+# Steps of the causal roadmap (from the final project assignment):
+## 1. Specify the scientific question
 
-## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+### Background
 
 The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
 
@@ -494,16 +483,14 @@ Drug use in adolescence or adulthood has been associated with adverse health out
 
 To our knowledge, no studies have evaluated the relationship between bullying victimization and drug use using causal inference approaches. This study fills a gap in the literature by studying this question in a causal framework.
 
-## Specify a Causal Model
+### Causal Question: 
 
-Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth ages 12-16 (initial n=9000) in 1997. At baseline, youth were interviewed as well as one of their parents. These youth have since been followed longitudinally. Our analytic dataset includes 7703 subjects, for reasons we will explain in greater detail. The target population is youth in the United States.
+What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
-## Original DAG
+## 2. Specify a causal model
 
-This is the original DAG we developed while examining what was available in the dataset: 
-```{r DAG Initial, echo=FALSE, include = TRUE, out.width = '100%'}
-knitr::include_graphics("DAG Causal Final Project_all covariates.png")
-```
+
+### DAG
 
 While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons (which will be discussed in more detail in the Positivity section). 
 - $\textbf{Sexual orientation}$ was predominantly reported as same-sex partners only, and our measure of association was homogenous across strata of sexual orientation (p=0.09). 
@@ -512,25 +499,13 @@ While our initial DAG included sexual orientation, citizenship, and learning dis
 
 Therefore, below is our final DAG for this analysis:
 
-## Final DAG 
 ```{r DAG Final, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
 ```
 
 
 
-## Structural Equations
-Our endogenous nodes include: $X = (W, A, Y)$, where $W = (W_1, W_2, W_3, W_4, W_5)$ is the set of baseline covariates, $A$ is victim of bullying, and $Y$ is incident drug use.
-  
-\vspace{12pt}
-
-Our background variables (exogenous nodes) include: $U = (U_W, U_A, U_Y)$ ~ $\mathbb{P}_U$.  
-  
-\vspace{12pt}
-
-We place no assumptions on the distribution $\mathbb{P}_U$. We have not placed any restrictions on the functional form.
-
-## Structural Equations
+### Structural Equations
 
 Our structural equations $\mathcal{F}$ are:
 
@@ -550,7 +525,9 @@ $$
  
 Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z-score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
 
-We are making exclusion restrictions, most notably that race ($W_3$) and sex ($W_2$) have no endogenous parents.
+We are making exclusion restrictions, most notably that race ($W_3$) and sex ($W_2$) have no endogenous parents. We place no assumptions on the distribution $\mathbb{P}_U$. We have not placed any restrictions on the functional form.
+
+## 3. Translate your question into a formal target casual parameter, defined using counterfactuals
 
 ## Target Causal Parameter
 
@@ -561,8 +538,11 @@ $$
 $$
 where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status $A = a$. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
 
+## 4. Specify your observed data and its link to the causal model
 
-## Our Observed Data
+### Our Observed Data
+
+Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth ages 12-16 (initial n=9000) in 1997. At baseline, youth were interviewed as well as one of their parents. These youth have since been followed longitudinally. Our analytic dataset includes 7703 subjects, for reasons we will explain in greater detail. The target population is youth in the United States. In our sample, approximately 19.5% of youth had been bullied before age 12, and 17% had incident drug use during follow-up. 
 
 A: Bullying before the age of 12 (asked in 1997)
 
@@ -575,7 +555,7 @@ Sample size: 7,703
 The target population is youth in the United States.
 
 
-## Link to the SCM
+### Link to the SCM
 
 These data are part of a nationally representative sample; therefore, they have survey weights associated with them and are not truly generated from idependent, identically distributed draws from the random variable $O$. However, given what we’ve discussed in this class, for this project we have used this simple link. Thus, we assume that the observed data $O = (W, A, Y)$ ~ $\mathbb{P}_0$ were generated by sampling 7703 times from a data generating process described by the SCM. The statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
 
@@ -611,49 +591,15 @@ No | `r livebioparents.table[2,1]` (`r round(livebioparents.table[2,1]/N*100, 1)
 $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r round(mean(BMI.nodrugs$bmiz),3)` (*mean*) |
 \textcolor{white}{x}   | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
+## 5. Identify
 
-## Marginal distribution of exposure and outcome:
-
-```{r, include=FALSE}
-#marginal distribution of exposure
-exposure = table(final_data$bullied_bf_12_1997, useNA="ifany")
-
-#marginal distribution of outcome
-outcome = table(final_data$ever_new_user2, useNA = "ifany")
-```
-Variable | No | Yes 
--------- | ------- | -------
-Bullied < 12 | `r exposure[1]` | `r exposure[2]`
-Incident drug use | `r outcome[1]` | `r outcome[2]`
-
-In our sample, approximately 19.5% of youth had been bullied before age 12, and 17% had incident drug use during follow-up. 
-
-
-## Identifiability
-
-If there were no independence assumptions, this would be our DAG:
-```{r DAG 3, echo=FALSE, include = TRUE, out.width = '100%'}
-knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us.png")
-```
-
-
-## Identifiability
-
-In reality, we believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:
+We believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:
 ```{r DAG 4, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_reality.png")
 ```
 
-## Identifiability
 
-However, under this initial causal model the target parameter cannot be identified, because there are several backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.
-
-```{r DAG 5, echo=FALSE, include = TRUE, out.width = '100%'}
-knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_convenience.png")
-```
-
-
-## Identifiability
+However, under this initial causal model the target parameter cannot be identified, because there are several backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience. We think the shared unknowns whose lines we have removed are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.
 
 We could improve the plausibility of these additional independence assumptions by identifying potentially shared unknowns and gathering data on them so they can be controlled for in the model. For example, income; social status; and access to fresh, healthy food are all examples of potential shared confounders of biological mother's education and BMI. If we measured those variables and controlled for them in our model, it would be more plausible to assume independence between the unknowns contributing to both of those nodes. 
 
@@ -664,7 +610,8 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_fin
 
 
 
-## Estimand and Statistical Model
+## 6. Commit to a statistical model and estimand (target parameter of the observed data distribution)
+
 The target parameter of the observed data distribution (which equals the causal parameter in the augmented causal model $\mathcal{M}^{F\star}$) is the G-Computation estimand:
 ```{r estimand, echo=FALSE, include = TRUE}
 knitr::include_graphics("estimand.png")
@@ -673,8 +620,26 @@ knitr::include_graphics("estimand.png")
 This is our statistical estimand.
 
 
+## 7. Estimate
 
-\newpage
+
+## 8. Interpret results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Positivity 
   Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
