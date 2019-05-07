@@ -475,18 +475,17 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 ```
 
 Steps of the causal roadmap:
-1. Specify Causal Model representing real background knowledge
-2. Specify Causal Question
-3. Specify Observed Data and link to causal model
+1. Specify causal model representing real background knowledge.
+2. Specify causal question.
+3. Specify observed data and link to causal model.
 4. Identify: Knowledge + data sufficient?
 5. Commit to an estimand as close to question as possible, and a statistical model representing real knowledge.
-6. Estimate
-7. Interpret Results
+6. Estimate.
+7. Interpret results.
 
 ## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
 
 The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
-
 
 According to a 2012 paper, youth involved in bullying were more likely than students not involved in bullying to use substances, with bullying victims reporting the greatest levels of substance use.$^2$ Longitudinal analyses have shown that youth who experience mental or physical bullying, separately or in combination, were more likely to subsequently report use of substances (alcohol, cigarettes, marijuana, and inhalants). This finding held after controlling for baseline covariates (gender, grade level, ethnicity and substance).$^3$ 
 
@@ -496,16 +495,19 @@ To our knowledge, no studies have evaluated the relationship between bullying vi
 
 ## Specify a Causal Model
 
-Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth age 12-16 (initial n=9000) in 1997. These youth have since been followed longitudinally. The target population is youth in the United States. Our particular analyses have 7703 subjects in the final dataset.
+Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth ages 12-16 (initial n=9000) in 1997. At baseline, youth were interviewed as well as one of their parents. These youth have since been followed longitudinally. Our analytic dataset includes 7703 subjects, for reasons we will explain in greater detail. The target population is youth in the United States.
 
 ## Original DAG
 
-This is the original DAG we developed while looking at what was available in the dataset: 
+This is the original DAG we developed while examining what was available in the dataset: 
 ```{r DAG Initial, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
 
-While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons. Sexual orientation wasn't associated with our exposure/outcome, and strata were homogenous by sexual orientation (p=0.09). Upon inspecting the NLSY codebook, citizenship was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship. Finally, learning disability  actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, being bullied, and thus excluded it.
+While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons (which will be discussed in more detail in the Positivity section). 
+- $\textbf{Sexual orientation}$ was predominantly reported as same-sex partners only, and our measure of association was homogenous across strata of sexual orientation (p=0.09). 
+- Upon inspecting the NLSY codebook, $\textbf{citizenship}$ was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship, and very few subjects reported being born outside of the U.S.
+- Finally, $\textbf{learning disability}$ actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, in which case it would be on the causal pathway and we would not want to control for it. 
 
 Therefore, below is our final DAG for this analysis:
 
@@ -547,6 +549,8 @@ $$
  
 Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z-score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
 
+We are making exclusion restrictions, most notably that race ($W_3$) and sex ($W_2$) have no endogenous parents.
+
 ## Target Causal Parameter
 
 Our target causal parameter is the difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12:
@@ -554,7 +558,7 @@ Our target causal parameter is the difference in the counterfactual probability 
 $$
 \psi^F (P_{U,X}) = P_{U,X} (Y_1 = 1) - P_{{U,X}}(Y_0=1) = E_{U,X}(Y_1) - E_{U,X}(Y_0)
 $$
-where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status A = a. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
+where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status $A = a$. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
 
 
 ## Our Observed Data
@@ -563,7 +567,7 @@ A: Bullying before the age of 12 (asked in 1997)
 
 Y: Incident drug use ("cocaine or other hard drugs") after 1997
 
-Ws: Race/ethnicity, sex, BMI, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
+Ws: Race/ethnicity, sex, BMI z-score, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
 
 Sample size: 7,703
 
@@ -572,7 +576,7 @@ The target population is youth in the United States.
 
 ## Link to the SCM
 
-We assume that the observed data O = (W, A, Y) ~ $\mathbb{P}_0$ were generated by sampling n times from a data generating process described by the SCM. The statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
+These data are part of a nationally representative sample; therefore, they have survey weights associated with them and are not truly a random sample of observed data $O$. However, given what we’ve discussed in this class, for this project we have used this simple link. Thus, we assume that the observed data $O = (W, A, Y)$ ~ $\mathbb{P}_0$ were generated by sampling 7703 times from a data generating process described by the SCM. The statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
 
 ## Table 1
 
@@ -607,7 +611,6 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 \textcolor{white}{x}   | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
 
-<!-- 
 ## Marginal distribution of exposure and outcome:
 
 ```{r, include=FALSE}
@@ -621,7 +624,9 @@ Variable | No | Yes
 -------- | ------- | -------
 Bullied < 12 | `r exposure[1]` | `r exposure[2]`
 Incident drug use | `r outcome[1]` | `r outcome[2]`
--->
+
+In our sample, approximately 19.5% of youth had been bullied before age 12, and 17% had incident drug use during follow-up. 
+
 
 ## Identifiability
 
@@ -640,7 +645,7 @@ knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_rea
 
 ## Identifiability
 
-However, under this initial causal model the target parameter cannot be identified, because there are a large number of backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.
+However, under this initial causal model the target parameter cannot be identified, because there are several backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.
 
 ```{r DAG 5, echo=FALSE, include = TRUE, out.width = '100%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_convenience.png")
@@ -671,13 +676,13 @@ This is our statistical estimand.
 \newpage
 
 ## Positivity 
-  Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates might be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
+  Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
   
   In the race variable, fewer than 1% of the observations were in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
   
   Whether or not a participant had any same-sex romantic partners was also initially considered as a potential covariate in the model. There were very few participants with one or more same sex partners (n=269 or <4% of our sample). Moreover, when two by two tables relating bullying and drug use were stratified by whether or not a participant had a same sex partner, there was no significant difference in the measure of association between the strata (test of homogeneity $\chi^2$ value 1.49, p=0.223). This suggests that the covariate set could likely be restricted to exclude this variable with minimal effect on our target of inference, and thus this variable was not included in the analyses.
   
-  Third, we initially hoped to include citizenship status. However, we realized that this measure was actually assessing place of birth not citizenship and therefore was likely not estimating the construct that we felt was important. Moreover, there were very few participants who were born outside the United States, and many with no data on their birthplace, so this could hace also created positivity violations.
+  Third, we initially hoped to include citizenship status. However, we realized that this measure was actually assessing place of birth, not citizenship, and therefore was likely not estimating the construct that we felt was important. Moreover, there were very few participants who were born outside the United States, and many with no data on their birthplace, so this could have also created positivity violations.
 
   For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
 
@@ -686,9 +691,7 @@ This is our statistical estimand.
 BMIbybullyingstatus
 ```
 
-
-
-  We also observed the distribution of propensity scores of each covariate-exposure combination and created density plots of this differentiationg between those with each outcome. These show a bimodal distribution (see below; as expected given that many of the covariates are bivariate). Importantly, these distributions have with roughly equal support between outcome groups.
+  We also observed the distribution of propensity scores of each covariate-exposure combination and created density plots of this differentiating between those with each outcome. These show a bimodal distribution (see below; as expected given that many of the covariates are bivariate). Importantly, these distributions have roughly equal support between outcome groups.
   
 ```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 8}
 
@@ -696,7 +699,7 @@ IPTWDensityPlot
 
 ```
 
-In summary, in our final set of variables we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. Thus, we may proceed with estimation without concerns over practical positivity violations.
+In summary, in our final set of variables, we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. Thus, we may proceed with estimation without concerns over practical positivity violations.
 
 ## Estimation
 
