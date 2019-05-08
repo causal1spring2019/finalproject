@@ -4,6 +4,8 @@ author: "--  \nShelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
 output: pdf_document
 header-includes:
    - \usepackage{xcolor}
+   - \usepackage{setspace}
+   - \usepackage{enumitem}
 date: "Spring 2019"
 ---
 
@@ -623,7 +625,7 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 
 In our sample, approximately 19.5% of youth had been bullied before age 12, and 17.3% had incident drug use during follow-up. 
 
-The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity. However, if we refine this analysis for publication, we will impute multiple datasets to account for uncertainty in the imputation procedure.
+The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the *mice* package in R. For this assignment, we only used one imputed dataset for simplicity. However, if we refine this analysis for publication, we will impute multiple datasets to account for uncertainty in the imputation procedure.
 
 
 ### Link to our SCM
@@ -728,15 +730,15 @@ Our team also wrote our own wrapper for performing a log-linear model. However, 
 
 ### Assessing Positivity Assumptions 
 
-  Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
+Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
   
-  In the race variable, fewer than 1% of the observations were in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
+In the race variable, fewer than 1% of the observations were in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
   
-  Whether or not a participant had any same-sex romantic partners was also initially considered as a potential covariate in the model. There were very few participants with one or more same sex partners (n=269 or <4% of our sample). Moreover, when two by two tables relating bullying and drug use were stratified by whether or not a participant had a same sex partner, there was no significant difference in the measure of association between the strata (test of homogeneity $\chi^2$ value 1.49, p=0.223). This suggests that the covariate set could likely be restricted to exclude this variable with minimal effect on our target of inference, and thus this variable was not included in the analyses.
+Whether or not a participant had any same-sex romantic partners was also initially considered as a potential covariate in the model. There were very few participants with one or more same sex partners (n=269 or <4% of our sample). Moreover, when two by two tables relating bullying and drug use were stratified by whether or not a participant had a same sex partner, there was no significant difference in the measure of association between the strata (test of homogeneity $\chi^2$ value 1.49, p=0.223). This suggests that the covariate set could likely be restricted to exclude this variable with minimal effect on our target of inference, and thus this variable was not included in the analyses.
   
-  Third, we initially hoped to include citizenship status. However, we realized that this measure was actually assessing place of birth, not citizenship, and therefore was likely not estimating the construct that we felt was important. Moreover, there were very few participants who were born outside the United States, and many with no data on their birthplace, so this could have also created positivity violations.
+Third, we initially hoped to include citizenship status. However, we realized that this measure was actually assessing place of birth, not citizenship, and therefore was likely not estimating the construct that we felt was important. Moreover, there were very few participants who were born outside the United States, and many with no data on their birthplace, so this could have also created positivity violations.
 
-  For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
+For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
 
 ```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 5}
 
@@ -825,19 +827,17 @@ mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 
 ## Step 7. Interpret Results
 
-According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04; this is the causal interpretation. We do not think our results should be interpreted causally, however, becuase of the unrealistic convenience assumptions this interpretaion requires. The statistical interpretation of our findings is that being bulled before at 12 is associated with an increase of 0.04 in the probability of subsequent drug use, compared to not being bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
+According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04; this is the causal interpretation. We do not think our results should be interpreted causally, however, becuase of the unrealistic convenience assumptions this interpretaion requires. The statistical interpretation of our findings is that being bulled before at 12 is associated with an increase of 0.04 in the probability of subsequent drug use, compared to not being bullied. This is a plausible finding, though we expected it to be even higher. However, because drug use is typically underreported due to social desirability bias, we expect our risk difference is biased toward the null. 
 
 Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE. Moreover, the G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model.
 
 ### Limitations
 
-Our analysis includes a number of limitations. First, there were a number of covariates that were exogenous, which we would have measured and included had we been prospectively collecting data instead of using an existing dataset. As one important example of this, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would obviously have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use).  
+Our analysis includes a number of limitations. First, we would have liked to have measured and included a number of covariates that were exogenous in our model, had we been prospectively collecting data. As one important example, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use).  
   
 Second, while the data were collected, we did not include any mental health variables as endogenous variables in our model, because the questions were extremely vague, and the temporality was unclear (i.e., we couldn't determine that mental health wasn't caused by exposure). Mental health is likely an important covariate to include in this analysis, potentially as a confounder or a mediator of the exposure and outcome.  
 
-Third, the independence assumptions that we created out of necessity to identify the target causal parameter were likely not accurate, introducing confounder-based bias into our results.  
-  
-And finally, this was not a random sample, yet our link was simplified for this project, as described in step 4, above. In subsequent analyses we would plan to use the sample weights such that these analyses would be reflective of the US population, as intended when the study was designed.
+Third, the independence assumptions that we created out of necessity to identify the target causal parameter were likely not accurate, introducing confounder-based bias into our results. And finally, this was not a random sample, yet our link was simplified for this project, as described in step 4, above. In subsequent analyses we would plan to use the sample weights such that these analyses would be reflective of the US population, as intended when the study was designed.
 
 ### Impacts
 
@@ -845,30 +845,20 @@ The results of this analysis allow policymakers and school administrators to bet
 
 ## Contributions of the Team Members
 
-* Suggestion of a dataset and potential issues for exploration: Veronica
-
-* Project management: Shelley
-
-* Background and literature review: Lizzy
-
-* Delineation of the causal model, causal question and estimand choice: Entire group
-
-* Development of the structural equations: Lizzy
-
-* Identifiability considerations: Shelley
-
-* Data cleaning and multiple imputation of missing covariate data: Veronica
-
-* Practical positivity checks: Stephanie
-
-* Creation of SuperLearner library: Veronica
-
-* Coding of ATE point estimates: Veronica
-
-* Bootstrapping of confidence intervals: Stephanie
-
-* Interpretation of results: Entire Group
-
+\begin{itemize}[itemsep=0mm]
+\item Suggestion of a dataset and potential issues for exploration: Veronica
+\item Project management: Shelley
+\item Background and literature review: Lizzy
+\item Delineation of the causal model, causal question and estimand choice: Entire group
+\item Development of the structural equations: Lizzy
+\item Identifiability considerations: Shelley
+\item Data cleaning and multiple imputation of missing covariate data: Veronica
+\item Practical positivity checks: Stephanie
+\item Creation of SuperLearner library: Veronica
+\item Coding of ATE point estimates: Veronica
+\item Bootstrapping of confidence intervals: Stephanie
+\item Interpretation of results: Entire Group
+\end{itemize}
 
 ## References
 
