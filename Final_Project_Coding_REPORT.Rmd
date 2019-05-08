@@ -1,6 +1,6 @@
 ---
-title: "Final Project: \n Childhood Bullying and Subsequent Drug Use"
-author: "Shelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
+title: "Final Project:  \nChildhood Bullying and Subsequent Drug Use"
+author: "--  \nShelley Facente, Steph Holm, Lizzy Kinnard, Veronica Pear"
 output: pdf_document
 header-includes:
    - \usepackage{xcolor}
@@ -206,7 +206,7 @@ BMIbybullyingstatus <- final_data %>% filter(bmiz> -15) %>%
                         ggplot(aes(bmiz, fill = bullied_bf_12_1997)) +
                           geom_density(alpha=0.9) +
                           scale_fill_brewer(palette = 3) +
-                          theme(text = element_text(size = 30)) +
+                          theme(text = element_text(size = 22)) +
                           theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1, 'cm')) +
                           labs(x = "BMI Z-score for Age and Sex")
 
@@ -469,21 +469,24 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
     scale_x_continuous(limits = c(0,1)) +
     xlab("Probability of AW") +
     theme(legend.title=element_blank(), legend.key.size = unit(2, 'lines'), legend.spacing.x = unit(1, 'cm')) +
-    ggtitle("Density Plot of AW Probabilities By Outcome Group") +
-  theme(text = element_text(size = 30))
-
+    ggtitle("           Density Plot of AW Probabilities By Outcome Group") + theme(text = element_text(size = 18))
 ```
 
-Steps of the causal roadmap:
-1. Specify causal model representing real background knowledge.
-2. Specify causal question.
-3. Specify observed data and link to causal model.
-4. Identify: Knowledge + data sufficient?
-5. Commit to an estimand as close to question as possible, and a statistical model representing real knowledge.
-6. Estimate.
-7. Interpret results.
+\vspace{12pt}
+For our final project, we have worked to answer an important causal question using a real-life dataset, and the steps of the causal roadmap:
 
-## Causal Question: What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?
+\setlength{\hangindent}{15pt}
+\linespread{1.0}\textbf{ \ \ \ 1. Specify causal model representing real background knowledge.\\   
+2. Specify causal question.\\
+3. Specify observed data and link to causal model.\\
+4. Identify: Knowledge + data sufficient?\\
+5. Commit to the best estimand possible, and an appropriate statistical model.\\
+6. Estimate.\\
+7. Interpret results.}  
+
+\vspace{12pt}
+
+## Background 
 
 The relationship between bullying and drug use has previously been explored. This association has been examined both among youth who are perpetrators of bullying and youth who are victims of bullying. A 2016 meta-analysis found that youth who bully are at least twice as likely compared with non-involved students to use drugs later in life (OR = 2.22, 95% CI: 1.60-3.07). However, when adjusting for confounding variables, the adjusted summary effect size was markedly reduced to an OR of 1.41 (95% CI: 1.20-1.66), suggesting that much of the variation is explained by other contributing factors.$^1$
 
@@ -493,33 +496,49 @@ Drug use in adolescence or adulthood has been associated with adverse health out
 
 To our knowledge, no studies have evaluated the relationship between bullying victimization and drug use using causal inference approaches. This study fills a gap in the literature by studying this question in a causal framework.
 
-## Specify a Causal Model
+\vspace{12pt}
 
-Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth ages 12-16 (initial n=9000) in 1997. At baseline, youth were interviewed as well as one of their parents. These youth have since been followed longitudinally. Our analytic dataset includes 7703 subjects, for reasons we will explain in greater detail. The target population is youth in the United States.
+## Step 1. Specify a Causal Model
 
-## Original DAG
+Our data are from the National Longitudinal Survey of Youth 1997. This was recruited as a nationally representative cohort of youth ages 12-16 (initial n=9000) in 1997. At baseline, youth were interviewed as well as one of their parents. These youth have since been followed longitudinally. Our analytic dataset includes 7703 subjects, for reasons we will explain in greater detail in subsequent sections.  
+  
+The target population is youth in the United States.
+
+### Original DAG
 
 This is the original DAG we developed while examining what was available in the dataset: 
-```{r DAG Initial, echo=FALSE, include = TRUE, out.width = '100%'}
+```{r DAG Initial, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '55%'}
 knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
 
 While our initial DAG included sexual orientation, citizenship, and learning disability as covariates, we decided to exclude them from our final DAG for the following reasons (which will be discussed in more detail in the Positivity section). 
-- $\textbf{Sexual orientation}$ was predominantly reported as same-sex partners only, and our measure of association was homogenous across strata of sexual orientation (p=0.09). 
-- Upon inspecting the NLSY codebook, $\textbf{citizenship}$ was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship, and very few subjects reported being born outside of the U.S.
-- Finally, $\textbf{learning disability}$ actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure, in which case it would be on the causal pathway and we would not want to control for it. 
+
+* $\textbf{Sexual orientation}$ was predominantly reported as same-sex partners only, and our measure of association was homogenous across strata of sexual orientation (p=0.09). 
+* Upon inspecting the NLSY codebook, $\textbf{citizenship}$ was actually county of birth, which is not the same underlying construct we were trying to capture with citizenship, and very few subjects reported being born outside of the United States.
+* Finally, $\textbf{learning disability}$ actually captured a learning or emotional problem, and we decided that the latter could be influenced by our exposure (i.e. there could be temporal concerns), in which case it would be on the causal pathway and we would not want to control for it. 
+
+\vspace{12pt}
 
 Therefore, below is our final DAG for this analysis:
 
-## Final DAG 
-```{r DAG Final, echo=FALSE, include = TRUE, out.width = '100%'}
+### Final DAG 
+```{r DAG Final, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '55%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
 ```
 
 
 
-## Structural Equations
-Our endogenous nodes include: $X = (W, A, Y)$, where $W = (W_1, W_2, W_3, W_4, W_5)$ is the set of baseline covariates, $A$ is victim of bullying, and $Y$ is incident drug use.
+### Structural Equations
+Our endogenous nodes include: $X = (W, A, Y)$, where $W = (W_1, W_2, W_3, W_4, W_5)$ is the set of baseline covariates, where
+
+* $W_1$ = mother's education
+* $W_2$  = sex
+* $W_3$  = race/ethnicity
+* $W_4$  = not living with both biological parents
+* $W_5$  = BMI z-score
+
+$A$ = bullied before the age of 12 (asked in 1997), and  
+$Y$ = incident drug use ("cocaine or other hard drugs") after 1997.
   
 \vspace{12pt}
 
@@ -528,8 +547,6 @@ Our background variables (exogenous nodes) include: $U = (U_W, U_A, U_Y)$ ~ $\ma
 \vspace{12pt}
 
 We place no assumptions on the distribution $\mathbb{P}_U$. We have not placed any restrictions on the functional form.
-
-## Structural Equations
 
 Our structural equations $\mathcal{F}$ are:
 
@@ -545,42 +562,39 @@ Y &= f_Y (U_Y, A, W_1, W_2, W_3, W_4, W_5) \\
 \end{aligned}
 $$
    
-\vspace{12pt}
- 
-Where $W_1$ = mother's education; $W_2$  = sex; $W_3$  = race/ethnicity;  $W_4$  = not living with both biological parents;  $W_5$  = BMI z-score; $A$ = bullied before the age of 12 (asked in 1997); $Y$ = incident drug use ("cocaine or other hard drugs") after 1997. 
+\vspace{6pt}
 
-We are making exclusion restrictions, most notably that race ($W_3$) and sex ($W_2$) have no endogenous parents.
+It is clear from these structural equations that we are making exclusion restrictions, most notably that race ($W_3$) and sex ($W_2$) have no endogenous parents. We will discuss our independence assumptions during step 4 of the roadmap (identification).
 
-## Target Causal Parameter
+\vspace{20pt}
 
-Our target causal parameter is the difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12:
+## Step 2. Specify Causal Question
 
+Our causal question is:  
+  
+\textbf{What is the effect of having been bullied prior to age 12 on incidence of drug use in adolescence or adulthood?}
+
+### Target Causal Parameter
+
+Given our causal question, our target causal parameter is the difference in the counterfactual probability of drug use if all kids were bullied prior to age 12, and the counterfactual probability of drug use if all kids were not bullied prior to age 12, represented by the following equation:
 $$
 \psi^F (P_{U,X}) = P_{U,X} (Y_1 = 1) - P_{{U,X}}(Y_0=1) = E_{U,X}(Y_1) - E_{U,X}(Y_0)
 $$
+  
 where $Y_a$ denotes the counterfactual outcome under an intervention to set bullying status $A = a$. This target causal parameter is the average treatment effect (ATE), or causal risk difference. 
 
 
-## Our Observed Data
+## Step 3. Specify observed data and link to causal model
 
-A: Bullying before the age of 12 (asked in 1997)
+\vspace{12pt}
 
-Y: Incident drug use ("cocaine or other hard drugs") after 1997
+### Our Observed Data
 
-Ws: Race/ethnicity, sex, BMI z-score, not living with both biological parents, mother's educational status (all Ws were measured at baseline) 
+As previously described, our observed data includes a sample of 7,703 people who participated in the National Longitudinal Survey of Youth 1997. Table 1 includes descriptive frequencies of our exposure and covariates, stratified by outcome.
 
-Sample size: 7,703
+### Table 1
 
-The target population is youth in the United States.
-
-
-## Link to the SCM
-
-These data are part of a nationally representative sample; therefore, they have survey weights associated with them and are not truly a random sample of observed data $O$. However, given what we’ve discussed in this class, for this project we have used this simple link. Thus, we assume that the observed data $O = (W, A, Y)$ ~ $\mathbb{P}_0$ were generated by sampling 7703 times from a data generating process described by the SCM. The statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
-
-## Table 1
-
-\fontsize{8}{8} \selectfont 
+\fontsize{12}{12} \selectfont 
 
 Covariate | Drug use (\%) |  No drug use (\%) |
 --------- | ---------- | --------- |
@@ -610,8 +624,9 @@ No | `r livebioparents.table[2,1]` (`r round(livebioparents.table[2,1]/N*100, 1)
 $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r round(mean(BMI.nodrugs$bmiz),3)` (*mean*) |
 \textcolor{white}{x}   | `r round(sd(BMI.druguse$bmiz),2)` (*sd*) |  `r round(sd(BMI.nodrugs$bmiz),2)` (*sd*) |
 
+\fontsize{10}{10} \selectfont 
 
-## Marginal distribution of exposure and outcome:
+In our sample, approximately 19.5% of youth had been bullied before age 12, and 17.3% had incident drug use during follow-up. 
 
 ```{r, include=FALSE}
 #marginal distribution of exposure
@@ -620,62 +635,74 @@ exposure = table(final_data$bullied_bf_12_1997, useNA="ifany")
 #marginal distribution of outcome
 outcome = table(final_data$ever_new_user2, useNA = "ifany")
 ```
-Variable | No | Yes 
--------- | ------- | -------
-Bullied < 12 | `r exposure[1]` | `r exposure[2]`
-Incident drug use | `r outcome[1]` | `r outcome[2]`
 
-In our sample, approximately 19.5% of youth had been bullied before age 12, and 17% had incident drug use during follow-up. 
+\vspace{12pt}
+
+## Link to our SCM
+
+These data are part of a nationally representative sample; therefore, they have survey weights associated with them and are not truly a random sample of observed data $O$. However, for this project we have used a  simple link. Therefore, we assume that the observed data $O = (W, A, Y)$ ~ $\mathbb{P}_0$ were generated by sampling 7703 i.i.d. times from a data generating process described by the SCM.  
+
+Given our knowledge of our data, the statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
 
 
-## Identifiability
+\newpage
+
+## Step 4. Identify
+
+\vspace{20pt}
 
 If there were no independence assumptions, this would be our DAG:
-```{r DAG 3, echo=FALSE, include = TRUE, out.width = '100%'}
+
+\vspace{20pt}
+
+```{r DAG 3, echo=FALSE, include = TRUE, fig.align='center', out.width = '65%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us.png")
 ```
 
-
-## Identifiability
+\vspace{20pt}
 
 In reality, we believe there are no shared unknowns between Race or Sex with any other variables; therefore, this is what we think is most true for our DAG:
-```{r DAG 4, echo=FALSE, include = TRUE, out.width = '100%'}
+
+\vspace{20pt}
+
+```{r DAG 4, echo=FALSE, include = TRUE, fig.align='center', out.width = '65%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_reality.png")
 ```
 
-## Identifiability
+\newpage
 
-However, under this initial causal model the target parameter cannot be identified, because there are several backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would need to also add a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), and allow us to make progress on the causal roadmap.
+However, under this initial causal model the target parameter cannot be identified, because there are several backdoor pathways. To block the backdoor pathways and create an identified target parameter, we would need to control for all of the endogenous covariates in our model, and would also need to make a series of independence assumptions for convenience (with the previously assumed shared unknowns shown below in grey). We think the shared unknowns represented by the grey dotted lines are less plausible than in the remaining cases of shared unknowns (remaining in blue), allowing us to make progress on the causal roadmap.
 
-```{r DAG 5, echo=FALSE, include = TRUE, out.width = '100%'}
+```{r DAG 5, echo=FALSE, include = TRUE, fig.align='center', out.width = '65%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_convenience.png")
 ```
 
-
-## Identifiability
-
-We could improve the plausibility of these additional independence assumptions by identifying potentially shared unknowns and gathering data on them so they can be controlled for in the model. For example, income; social status; and access to fresh, healthy food are all examples of potential shared confounders of biological mother's education and BMI. If we measured those variables and controlled for them in our model, it would be more plausible to assume independence between the unknowns contributing to both of those nodes. 
+We could improve the plausibility of these additional independence assumptions by identifying potentially shared unknowns and gathering data on them so we could controlled for them in the model. For example, income and access to fresh, healthy food are both examples of potential shared confounders of biological mother's education and BMI. If we measured those variables and controlled for them in our model, it would be more plausible to assume independence between the unknowns contributing to both of those nodes. 
 
 Once these independence assumptions have been agreed to for convenience, we have d-separation and can proceed with our analysis using an identifiable target parameter, using the final DAG below.
-```{r DAG 6, echo=FALSE, include = TRUE, out.width = '100%'}
+```{r DAG 6, echo=FALSE, include = TRUE, fig.align='center', out.width = '65%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates with Us_final.png")
 ```
 
 
 
-## Estimand and Statistical Model
-The target parameter of the observed data distribution (which equals the causal parameter in the augmented causal model $\mathcal{M}^{F\star}$) is the G-Computation formula:
-```{r estimand, echo=FALSE, include = TRUE}
-knitr::include_graphics("estimand.png")
-```
+## Step 5. Commit to an Estimand and Statistical Model
 
-This is our statistical estimand.
+The target parameter of the observed data distribution (which equals the causal parameter in the augmented causal model $\mathcal{M}^{F\star}$) is the G-Computation formula, which is our statistical estimand:
 
+$$
+\begin{aligned}
+\psi(\mathbb{P}_0) &= \mathbb{E}_0[\mathbb{E}_0(Y|A = 1, W) - \mathbb{E}_0(Y|A = 0, W)] = \\ \tiny\sum\limits_{w1,w2,w3,w4,w5}
+&[\bar{Q}_0(1,  W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5) \  - \\
+&\ \ \ \ \ \ \ \ \ \ \ \bar{Q}_0(0, W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5)] \ * \\
+&\mathbb{P}_0(W1 = w1, W2 = w2, W3 = w3, W4 = w4, W5 = w5)
+\end{aligned}
+$$
+As we said previously, given our knowledge of our data, the statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
 
+## Step 6. Estimate
 
-\newpage
-
-## Positivity 
+### Assessing Positivity Assumptions
   Given that young children can sometimes be cruel to their peers, there are not theoretical positivity violations expected; children with all combinations of the covariates could be bullied. For assessment of practical positivity violations, we initially tabulated exposure and outcome across all possible levels of our categorical variables. After doing this initial tabulation, we noted 3 variables that contributed to positivity violations. 
   
   In the race variable, fewer than 1% of the observations were in the 'mixed race' group (n= 69), leading to multiple practical positivity violations. The decision was made to remove this subgroup from our analyses, such that the race variable is still part of the model, but the mixed race individuals are not considered in the analysis. This does limit the generalizability of the findings (to non-mixed race individuals), but as it allows the race variable to continue to be used in the model this helps ensure the validity of the estimate within the groups for which there is sufficient data. As has been described,$^5$ all solutions to practical positivity violations require a trade-off between improving the positivity issue and potentially introducing bias into the target of causal inference. This solution was chosen as the least likely to bias the inference.
@@ -686,14 +713,16 @@ This is our statistical estimand.
 
   For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
 
-```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 5}
+```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 3.5}
 
 BMIbybullyingstatus
 ```
 
   We also observed the distribution of propensity scores of each covariate-exposure combination and created density plots of this differentiating between those with each outcome. These show a bimodal distribution (see below; as expected given that many of the covariates are bivariate). Importantly, these distributions have roughly equal support between outcome groups.
-  
-```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 8}
+
+\vspace{6pt}
+
+```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 6}
 
 IPTWDensityPlot
 
@@ -701,41 +730,47 @@ IPTWDensityPlot
 
 In summary, in our final set of variables, we are confident that an adequate volume of data exists across all levels of the covariate and exposure combinations. Thus, we may proceed with estimation without concerns over practical positivity violations.
 
-## Estimation
+### Estimation of the ATE
 
-We estimated the ATE (under causal assumptions) using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each are below. 
+We estimated the ATE under causal assumptions using three estimators: simple substitution (G-computation), inverse probability of treatment weighting (IPTW) with stabilized weights, and targeted maximum likelihood estimation (TMLE). The formula for each are below. 
+
+\vspace{10pt}
 
 Simple Substitution: 
-$\Psi(P_0) = \sum_{W}[E_0(Y|A=1,W=w)-E_0(Y|A=0,W=w)]P_0(W=w)$
+$$\Psi(P_0) = \sum_{W}[E_0(Y|A=1,W=w)-E_0(Y|A=0,W=w)]P_0(W=w)$$
 
 IPTW with stabilized weights:
-$\Psi(P_0) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}}$
+$$\Large\Psi(P_0) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{g(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{g(A_i|W_i)}}$$
 
 TMLE: 
-$\Psi(P_0) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+$$\Psi(P_0) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$$
+
+\vspace{10pt}
 
 We used SuperLearner for prediction with all estimators. Drawing from a pre-specified library of candidate algorithms, SuperLearner uses V-fold cross-validation to create a convex combination of algorithms that minimizes a loss function (non-negative least squares, by default). Because we only had 319 people in our data who were bullied and who later use drugs, we set the number of folds to 5 (keeping in mind that CV.SuperLearner would break each fold into an additional 5 folds). 
 
 Consistent with our nonparametric model assumptions, we included an array of candidate algorithms in the SuperLearner library, including parametric and nonparametric appraoches. Specifically, we included glm, glm.interaction, glmnet, bayesglm, randomForest, step, and mean in the library. All of these are appropriate for binary outcomes. GLM fits a generalized linear model including all of the main terms in the model. Glm.interaction adds to this second-order polynomials and main-term interactions. Glmnet implements a peanized likelihood model with LASSO or elastic net regularization. Bayesglm uses a Bayesian approach to fit a glm, rather than a frequentist (maximum likelihood) appraoch. RandomForest is a machine learning algorithm using decision trees. Step does forward and backward model selection using AIC. Lastly, mean takes the mean of Y, which we included for reference.
 
 
-## Confidence Intervals
+### Confidence Intervals
 
   As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimatnd, we used the robust method built in to the ltmle package to obtain a conference interval. This package implements two separate methods: an influence cure based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
 
-  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As superlearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimatnds may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have different mean values. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
+  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As superlearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimands may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have different mean values. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
   
   The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time constraints making it difficult to run bootstraps on 3 separate superlearner runs (those for G-computation, IPTW and TMLE).
+  
+\vspace{15pt}
 
-```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 10}
+```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 11}
 BootstrappedHist
 ```
 
 
-## Results
+### Results
 The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use. The G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model. 
 
-Table 2: Average Treatment Effect estimates
+### Table 2: Average Treatment Effect estimates
 
 Estimator | ATE (95% CI)
 --------------- | ---------------
@@ -743,9 +778,14 @@ G-computation | `r round(gComp, 3)` (`r round(CIs[1,1],3)`, `r round(CIs[1,2],3)
 Stabilized IPTW | `r round(IPTW, 3)` (`r round(CIs[2,1],3)`, `r round(CIs[2,2],3)`)
 TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI[1,2], 3)`)
 
+
+\vspace{18pt}
+
 The point estimate for the ATE from the G-computation model is outside the range of the bootstrapped 95% CI. This could be due to potential overfitting in the predictive model (as is shown in the table below, randomForest was given a large weight in the convex combination and is known to cause these kinds of problems). It is also illustative of the fact that bootstrapping CIs for G-comp is not grounded in statistical theory.
 
-Table 3: SuperLearner predictive model details from TMLE
+\vspace{18pt}
+
+### Table 3: SuperLearner predictive model details from TMLE
 
 Algorithm | A Risk | A Coefficient | Y Risk | Y Coefficient
 --------- | ---------- | --------- | ---------- | ---------
@@ -757,10 +797,13 @@ randomForest | `r round(ltmle.SL$fit$g[[2]]$bullied[5,1],5)` | `r round(ltmle.SL
 step | `r round(ltmle.SL$fit$g[[2]]$bullied[6,1],5)` | `r round(ltmle.SL$fit$g[[2]]$bullied[6,2],3)` | `r round(ltmle.SL$fit$Q[[2]]$Y[6,1],5)` | `r round(ltmle.SL$fit$Q[[2]]$Y[6,2],3)`
 mean | `r round(ltmle.SL$fit$g[[2]]$bullied[7,1],5)` | `r round(ltmle.SL$fit$g[[2]]$bullied[7,2],3)` | `r round(ltmle.SL$fit$Q[[2]]$Y[7,1],5)` | `r round(ltmle.SL$fit$Q[[2]]$Y[7,2],3)`
 
+\vspace{18pt}
 
 In this case, SuperLearner did not have the lowest risk of all the possible algorithms we considered in our library. However, the risks were very similar to one another across the board. This might suggest that our library could be larger and more diverse. We would like to include more machine learning algorithms in the future, but need to learn more about what options are available and appropriate to our analysis. 
 
-Table 4: SuperLearner performance
+\vspace{18pt}
+
+### Table 4: SuperLearner performance
 
 Algorithm | Avg Risk | SE 
 --------- | ---------- | --------- 
@@ -775,75 +818,54 @@ step | `r round(CVtable$Ave[8],5)` | `r round(CVtable$se[8],5)`
 mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 
 
-## Interpretation
+## 7. Interpret Results
+
 According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
 Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE.
 
-Our analysis includes a number of limitations. First, there were a number of covariates that were exogenous, which we would have measured and included had we been prospectively collecting data instead of using an existing dataset. As one important example of this, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would obviously have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use). Second, while the data were collected, we did not include any mental health variables as endogenous variables in our model, because the questions were extremely vague, and the temporality was unclear (i.e., we couldn't determine that mental health wasn't caused by exposure). Mental health is likely an important covariate to include in this analysis, potentially as a confounder or a mediator of the exposure and outcome. And third, the independence assumptions that we created out of necessity identify the target causal parameter were likely not correct, introducing confounder-based biased into our results.
+### Limitations
+
+Our analysis includes a number of limitations. First, there were a number of covariates that were exogenous, which we would have measured and included had we been prospectively collecting data instead of using an existing dataset. As one important example of this, we did not have any information on parent drug use, which we would have wanted to control for as an important confounder in our model (for identifiability we also needed to assume no shared unknowns between bullying and drug use, where this would obviously have also fit). It is likely incorporated into our model as one of the shared unknowns of not living with both biological parents, and our outcome (drug use).  
+  
+Second, while the data were collected, we did not include any mental health variables as endogenous variables in our model, because the questions were extremely vague, and the temporality was unclear (i.e., we couldn't determine that mental health wasn't caused by exposure). Mental health is likely an important covariate to include in this analysis, potentially as a confounder or a mediator of the exposure and outcome.  
+
+Third, the independence assumptions that we created out of necessity to identify the target causal parameter were likely not correct, introducing confounder-based biased into our results.  
+  
+And fourth, our use of a simplified link between our observed data and our causal model (as described in step 4 of the causal roadmap, above) likely introduced some bias into our results; a more complex data link would have been ideal.
+
+### Impacts
 
 The results of this analysis allow policymakers and school administrators to better identify youth who are at risk for starting to use drugs as a result of bullying, and provide them with additional services and social supports. It also supports the use of anti-bullying interventions in schools, as prevention of incident substance use later in life will also lead to a reduction in many of the adverse health outcomes associated with use of drugs.
 
-According to our analysis:  
-
-- __Statistical interpretation__: being bullied before the age of 12 is associated with a 4% absolute increase in drug use compared with not being bullied 
-
-- __Causal interpretation__: the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04  
 
 
-Estimator | ATE (95% CI)
---------------- | ---------------
-G-computation | `r round(gComp, 3)` (`r round(CIs[1,1],3)`, `r round(CIs[1,2],3)`)
-Stabilized IPTW | `r round(IPTW, 3)` (`r round(CIs[2,1],3)`, `r round(CIs[2,2],3)`)
-TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI[1,2], 3)`)
 
-## Limitations
-
-1. Important exogenous variables  
-\begin{itemize}
-     \item Parent drug use 
-     \item Mental health 
-     \item And more...
-   \end{itemize}
-  
-2. Necessary independence assumptions
-
-3. This was not a random sample (our link was simplified for this project).
-
-## Impacts
-
-- Identify youth who are at risk for starting to use drugs as a result of bullying  
-
-- Supports use of anti-bullying interventions in schools
-
+\vspace{16pt}
 
 ## Contributions of the Team Members
 
-- Suggestion of a dataset and potential issues for exploration: Veronica
+* \textbf{Suggestion of a dataset and potential issues for exploration:} Veronica
 
-- Particular expertise that we each contributed:
-\begin{enumerate}
-     \item Shelley - Project management
-     \item Stephanie - Pediatrics 
-     \item Veronica - Social and Substance Use Epi
-     \item Lizzy - Social and Substance Use Epi
-   \end{enumerate}
-   
-- Establishment of the causal model, delineation of the causal question and estimand of choice: Entire group
+* \textbf{Particular expertise that we each contributed:}
+    + Shelley - Project management
+    + Stephanie - Pediatrics 
+    + Veronica - Social and Substance Use Epi
+    + Lizzy - Social and Substance Use Epi
 
-- Identifiability considerations: Entire group, with Lizzy and Shelley working on the DAG
+* \textbf{Establishment of the causal model, causal question and estimand choice:} Entire group
 
-- Data cleaning and multiple imputation of missing covariate data: Veronica
+* \textbf{Identifiability considerations:} Entire group, with Lizzy and Shelley working on the DAGs
 
-- Creation of SuperLearner library: Veronica
+* \textbf{Data cleaning and multiple imputation of missing covariate data:} Veronica
 
-- Coding of ATE point estimates: Veronica
+* \textbf{Creation of SuperLearner library:} Veronica
 
-- Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals: Stephanie
+* \textbf{Coding of ATE point estimates:} Veronica
 
-- Interpretation of Results: Entire Group
+* \textbf{Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals:} Stephanie
 
-- Write up: Veronica drafted the estimation and results sections, ADD YOUR OWN HERE.
+* \textbf{Interpretation of Results:} Entire Group
 
 
 ## References
@@ -856,4 +878,4 @@ TMLE | `r round(TMLE$estimate, 3)` (`r round(TMLE$CI[1,1], 3)`, `r round(TMLE$CI
 
 4. Sarlin E. (2017) Substance Use Disorders Are Associated With Major Medical Illnesses and Mortality Risk in a Large Integrated Health Care System. Bethesda, MD: National Institute on Drug Abuse, October 24.
 
-5. Petersen M, Porter KE, Gruber S, Wang Y, van der Laan MJ. (2012) Diagnosing and responding to violations in the positivity assumption. Stats Methods Med Res. 21(1):31-54
+5. Petersen M, Porter KE, Gruber S, Wang Y, van der Laan MJ. (2012) Diagnosing and responding to violations in the positivity assumption. Stats Methods Med Res. 21(1):31-54.
