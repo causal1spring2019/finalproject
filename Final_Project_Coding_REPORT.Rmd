@@ -469,7 +469,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 ```
 
 \vspace{12pt}
-For our final project, we have worked to answer an important causal question using a real-life dataset, and the steps of the causal roadmap:
+For our final project, we have worked to answer an important causal question using a real-life dataset and applying the steps of the causal roadmap:
 
 \setlength{\hangindent}{15pt}
 \linespread{1.0}\textbf{ \ \ \ 1. Specify causal model representing real background knowledge.\\   
@@ -688,7 +688,11 @@ $$
 $$
 As we said previously, given our knowledge of our data, the statistical model $\mathcal{M}$ for the set of allowed distributions for the observed data is non-parametric. 
 
+\vspace{12pt}
+
 ## Step 6. Estimate
+
+\vspace{8pt}
 
 ### Estimators Used
 
@@ -710,7 +714,7 @@ $$\Large\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}
 
 #### TMLE: 
 
-$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$
+$$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$$
 
 - $\overline{Q^*_n}(A,W)$ is the targeted estimate of the conditional mean outcome, given A and W.
 
@@ -735,7 +739,7 @@ Our team also wrote our own wrapper for performing a log-linear model. However, 
 
   For the final variable set, observations exist in every possible category of our variable set. For our only continuous variable, BMI z-score (for age and sex), we looked at the distribution of BMI z-scores in the two exposure categories. These were very similar across the entire distribution suggesting good support for our analyses in the data (see below).
 
-```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 3.5}
+```{r, include = TRUE, echo = FALSE, fig.width=12, fig.height = 5}
 
 BMIbybullyingstatus
 ```
@@ -744,7 +748,7 @@ BMIbybullyingstatus
 
 \vspace{6pt}
 
-```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 6}
+```{r, include = TRUE, echo = FALSE, fig.width= 12, fig.height = 3.5}
 
 IPTWDensityPlot
 
@@ -758,20 +762,21 @@ In summary, in our final set of variables, we are confident that an adequate vol
 
   As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimand, we used the robust method built in to the ltmle package to obtain a confidence interval. This package implements two separate methods: an influence curve-based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
 
-  For the G-computation (simple substitution) and IPTW estimands we performed a non-parametric bootstrap. As Super Learner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimands may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have substantively different means and standard errors. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
+  For the G-computation (SS) and IPTW estimands we performed a non-parametric bootstrap. As Super Learner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimands may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have substantively different means and standard errors. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
 
   The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time constraints making it difficult to run bootstraps on 3 separate superlearner runs (those for G-computation, IPTW and TMLE).
   
 \vspace{15pt}
 
-```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 11}
+```{r, include = TRUE, echo = FALSE, warning = FALSE, fig.width= 16, fig.height = 6}
 BootstrappedHist
 ```
 
 
 ### Results
 
-The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use. 
+The unadjusted ATE (i.e., the mean difference in Y between the exposed and unexposed) was `r round(unadjusted, 3)`. The adjusted estimates, which marginalize over the distribution of the covariates, are shown in the table below. Under the causal assumptions of randomization and positivity, these estimate the ATE of childhood bullying on incident drug use.
+
 ### Table 2: Average Treatment Effect estimates
 
 Estimator | ATE (95% CI)
@@ -833,37 +838,37 @@ Second, while the data were collected, we did not include any mental health vari
 
 Third, the independence assumptions that we created out of necessity to identify the target causal parameter were likely not accurate, introducing confounder-based bias into our results.  
   
-And finally, this was not a random sample (our link was simplified for this project, as described in step 4, above) and in subsequent analyses we would plan to use the sample weights such that these analyses would be reflective of the US population, as intended when the study was designed.
+And finally, this was not a random sample, yet our link was simplified for this project, as described in step 4, above. In subsequent analyses we would plan to use the sample weights such that these analyses would be reflective of the US population, as intended when the study was designed.
 
 ### Impacts
 
-The results of this analysis allow policymakers and school administrators to better identify youth who are at risk for starting to use drugs as a result of bullying, and provide them with additional services and social supports. It also supports the use of anti-bullying interventions in schools, as prevention of incident substance use later in life will also lead to a reduction in many of the adverse health outcomes associated with use of drugs.
-
-\vspace{16pt}
+The results of this analysis allow policymakers and school administrators to better identify youth who are at risk for starting to use drugs as a result of bullying, and provide them with additional services and social supports. It also supports the use of anti-bullying interventions in schools, as prevention of incident substance use later in life will also lead to a reduction in many of the adverse health outcomes associated with drug use.
 
 ## Contributions of the Team Members
 
-* \textbf{Suggestion of a dataset and potential issues for exploration:} Veronica
+* Suggestion of a dataset and potential issues for exploration: Veronica
 
-* \textbf{Particular expertise that we each contributed:}
-    + Shelley - Project management
-    + Stephanie - Pediatrics 
-    + Veronica - Social and Substance Use Epi
-    + Lizzy - Social and Substance Use Epi
+* Project management: Shelley
 
-* \textbf{Establishment of the causal model, causal question and estimand choice:} Entire group
+* Background and literature review: Lizzy
 
-* \textbf{Identifiability considerations:} Entire group, with Lizzy and Shelley working on the DAGs
+* Delineation of the causal model, causal question and estimand choice: Entire group
 
-* \textbf{Data cleaning and multiple imputation of missing covariate data:} Veronica
+* Development of the structural equations: Lizzy
 
-* \textbf{Creation of SuperLearner library:} Veronica
+* Identifiability considerations: Shelley
 
-* \textbf{Coding of ATE point estimates:} Veronica
+* Data cleaning and multiple imputation of missing covariate data: Veronica
 
-* \textbf{Coding of Practical Positivity Checks and Bootstrapping of Confidence Intervals:} Stephanie
+* Practical Positivity Checks: Stephanie
 
-* \textbf{Interpretation of Results:} Entire Group
+* Creation of SuperLearner library: Veronica
+
+* Coding of ATE point estimates: Veronica
+
+* Bootstrapping of Confidence Intervals: Stephanie
+
+* Interpretation of Results: Entire Group
 
 
 ## References
