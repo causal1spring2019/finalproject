@@ -623,7 +623,7 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 
 In our sample, approximately 19.5% of youth had been bullied before age 12, and 17.3% had incident drug use during follow-up. 
 
-The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity, rather than imputing multiple to account for variations in the imputed value. 
+The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity. However, if we refine this analysis for publication, we will impute multiple datasets to account for uncertainty in the imputation procedure.
 
 
 ### Link to our SCM
