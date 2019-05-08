@@ -859,15 +859,15 @@ The results of this analysis allow policymakers and school administrators to bet
 
 * Data cleaning and multiple imputation of missing covariate data: Veronica
 
-* Practical Positivity Checks: Stephanie
+* Practical positivity checks: Stephanie
 
 * Creation of SuperLearner library: Veronica
 
 * Coding of ATE point estimates: Veronica
 
-* Bootstrapping of Confidence Intervals: Stephanie
+* Bootstrapping of confidence intervals: Stephanie
 
-* Interpretation of Results: Entire Group
+* Interpretation of results: Entire Group
 
 
 ## References
