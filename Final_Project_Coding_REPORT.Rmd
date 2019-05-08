@@ -470,7 +470,7 @@ IPTWDensityPlot <- PositivityData %>% group_by(Y) %>%
 
 ```
 
-# Steps of the causal roadmap (from the final project assignment):
+# Steps of the causal roadmap:
 ## 1. Specify the scientific question
 
 ### Background
@@ -557,7 +557,7 @@ Sample size: 7,703
 
 The target population is youth in the United States.
 
-The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation, with change equations, to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset rather than imputing multiple to assess account for variations in the imputed value. 
+The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity, rather than imputing multiple to account for variations in the imputed value. 
 
 
 ### Link to the SCM
