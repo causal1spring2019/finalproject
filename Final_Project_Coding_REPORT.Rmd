@@ -500,10 +500,10 @@ Our data are from the National Longitudinal Survey of Youth 1997. This was recru
   
 The target population is youth in the United States.
 
-### Original DAG
+### Causal graphs
 
 This is the original DAG we developed while examining what was available in the dataset: 
-```{r DAG Initial, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '55%'}
+```{r DAG Initial, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '60%'}
 knitr::include_graphics("DAG Causal Final Project_all covariates.png")
 ```
 
@@ -517,8 +517,7 @@ While our initial DAG included sexual orientation, citizenship, and learning dis
 
 Therefore, below is our final DAG for this analysis:
 
-### Final DAG 
-```{r DAG Final, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '55%'}
+```{r DAG Final, echo=FALSE, include = TRUE, fig.align = 'center', out.width = '60%'}
 knitr::include_graphics("DAG Causal Final Project_reduced covariates.png")
 ```
 
