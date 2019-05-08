@@ -623,7 +623,7 @@ $\textbf{BMI z-score}$ | `r round(mean(BMI.druguse$bmiz),3)` (*mean*) |  `r roun
 
 In our sample, approximately 19.5% of youth had been bullied before age 12, and 17.3% had incident drug use during follow-up. 
 
-The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity, rather than imputing multiple to account for variations in the imputed value. 
+The variables with missing data were mother's educational status (with 7% of the observations missing) and BMI (with 5% of the observations missing). We used multiple imputation by change equations to impute these values, as implemented in the mice package in R. For this assignment, we only used one imputed dataset for simplicity. However, if we refine this analysis for publication, we will impute multiple datasets to account for uncertainty in the imputation procedure.
 
 
 ### Link to our SCM
@@ -699,19 +699,19 @@ We estimated the ATE (under causal assumptions) using three estimators: simple s
 
 \vspace{10pt}
 
-#### Simple Substitution: 
+#### _Simple Substitution_: 
 
 $$\hat\Psi_{SS}(P_n) = 1/n\sum_{i=1}^n(\hat{\overline{Q}}(1,W_i)-\hat{\overline{Q}}(0,W_i))$$
 
 - $P_n$ is the empirical distribution and $\hat{\overline{Q}}(A,W)$ is the estimate of the emprical mean of Y, given A and W (a vector of baseline covariates).
 
-#### IPTW with stabilized weights:
+#### _IPTW with stabilized weights_:
 
 $$\Large\hat\Psi_{St.IPTW}(P_n) = \frac{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=1)}{\hat{g}(A_i|W_i)}}-\frac{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}Y_i}{1/n\sum_{i=1}^{n}\frac{I(A_i=0)}{\hat{g}(A_i|W_i)}}$$
 
 - $\hat{g}(1|W_i)$ is an estimate of the propensity score.
 
-#### TMLE: 
+#### _TMLE_: 
 
 $$\hat\Psi_{TMLE}(P_n) = 1/n\sum_{i=1}^n(\overline{Q^*_n}(1,Wi)-\overline{Q^*_n}(0,Wi))$$
 
@@ -759,11 +759,11 @@ In summary, in our final set of variables, we are confident that an adequate vol
 
 ### Confidence Intervals
 
-  As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimand, we used the robust method built in to the ltmle package to obtain a confidence interval. This package implements two separate methods: an influence curve-based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
+  As non-parametric modeling techniques were used for estimation, standard parametric confidence intervals would be inappropriate. For the TMLE estimator, we used the robust method built in to the ltmle package to obtain a confidence interval. This package implements two separate methods: an influence curve-based method as well as a robust method which uses TMLE to estimate the variance. The method which produced the more conservative interval is then used. 
 
-  For the G-computation (SS) and IPTW estimands we performed a non-parametric bootstrap. As Super Learner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimands may explain why the point estimate for the simple substitution estimand is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have substantively different means and standard errors. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
+  For the G-computation (SS) and IPTW estimators we performed a non-parametric bootstrap. As SuperLearner was used to arrive at both estimates, there is no guarantee that the data are asymptotically linear so these intervals may not be reliable. These are shown in the histogram below.  This theoretical concern regarding the bootstrap for these estimators may explain why the point estimate from the simple substitution model is outside the calculated confidence interval, and why these two bootstrapped approximations of the sampling distributions have substantively different means and standard errors. We chose to proceed with bootstrapping as it was the tool we have learned in this class, but would likely consider another approach in the future.
 
-  The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time constraints making it difficult to run bootstraps on 3 separate superlearner runs (those for G-computation, IPTW and TMLE).
+  The decision to use the package's built in method for assessing the confidence interval for TMLE was based on confidence that this would also provide a robust method, as well as time constraints making it difficult to run bootstraps on 3 separate SuperLearner runs (those for G-computation, IPTW and TMLE).
   
 \vspace{15pt}
 
@@ -805,7 +805,7 @@ mean | `r round(ltmle.SL$fit$g[[2]]$bullied[7,1],5)` | `r round(ltmle.SL$fit$g[[
 
 \vspace{18pt}
 
-In this case, SuperLearner did not have the lowest risk of all the possible algorithms we considered in our library. However, the risks were very similar to one another across the board. This might suggest that our library could be larger and more diverse. We would like to include more machine learning algorithms in the future, but need to learn more about what options are available and appropriate to our analysis. 
+In this case, SuperLearner did not have the lowest risk of all the possible algorithms we considered in our library. However, the risks were very similar to one another across the board. This might suggest that our library could be larger and more diverse. We would like to include more machine learning algorithms in the future, but need to learn more about what options are available and appropriate for our data. 
 
 \vspace{18pt}
 
@@ -825,7 +825,7 @@ mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 
 ## Step 7. Interpret Results
 
-According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
+According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04; this is the causal interpretation. We do not think our results should be interpreted causally, however, becuase of the unrealistic convenience assumptions this interpretaion requires. The statistical interpretation of our findings is that being bulled before at 12 is associated with an increase of 0.04 in the probability of subsequent drug use, compared to not being bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
 Our G-computation estimator had the lowest ATE estimate but greatest precision of our three estimators at 0.039 (95% CI: 0.017 - 0.034). Our stabilized IPTW estimator had the highest ATE estimate and moderate precision, at 0.045 (95% CI: 0.018 - 0.084). Our TMLE estimator produced an estimate of 0.044 (95% CI 0.007 - 0.08), with lowest precision. Ultimately, these estimators appear to have performed similarly, with much overlap between the point estimate and confidence intervals of each estimator's ATE. Moreover, the G-comp, IPTW, and TMLE estimates are all very close to the unadjusted estimate, suggesting that there was not a lot of confounding by the $W$s we included in the model.
 
