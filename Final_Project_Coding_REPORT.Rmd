@@ -823,7 +823,7 @@ randomForest | `r round(CVtable$Ave[7],5)` | `r round(CVtable$se[7],5)`
 step | `r round(CVtable$Ave[8],5)` | `r round(CVtable$se[8],5)`
 mean | `r round(CVtable$Ave[9],5)` | `r round(CVtable$se[9],5)`
 
-## 7. Interpret Results
+## Step 7. Interpret Results
 
 According to our analysis, the difference between the average counterfactual risk of drug use if everyone was bullied versus if no one was bullied is 0.04. This is causally interpreted to mean that if people are bullied they are about 4% more likely to use drugs later in life than if they are not bullied. This is a plausible finding, though we expected it to be even higher. It makes sense that we would see this in our data, however, because drug use is typically underreported due to social desirability bias, biasing our risk difference toward the null. 
 
